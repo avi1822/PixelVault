@@ -77,7 +77,11 @@
                                     </a>
                                 </div>
                                 <div class="youtube"><i class="fa-brands fa-youtube"></i></div>
-                                <div class="contact"><a href="#stations">Book Session</a></div>
+                                @auth
+                                    <div class="contact"><a href="{{ url('/user') }}">Book Session</a></div>
+                                @else
+                                    <div class="contact"><a href="{{ url('/login') }}">Book Session</a></div>
+                                @endauth
                             </div>
                         </div>
                     </div>
