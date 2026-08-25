@@ -97,6 +97,9 @@
             </div>
         </section>
         <section class="dashboard" id="stations">
+            <div class="caption" style="font-size: 2.2rem; font-weight: bold; text-align: center; color: #fff; margin-bottom: 25px;">
+                Gaming Lounge Overview
+            </div>
             <div class="dashcontainer">
                 <div class="dashcard">
                     <div class="icon"><i class="fa-solid fa-desktop"></i></div>
