@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Snacks" id="menu9">
+                        <label for="menu9">
+                            <i class="fa-solid fa-burger"></i>
+                            <div class="text">Snacks & Drinks</div>
+                        </label>
                         <input type="radio" name="slidmenu" value="Membership" id="menu8">
                         <label for="menu8">
                             <i class="fa-solid fa-crown"></i>
@@ -284,7 +289,13 @@
                                     </div>
                                 </div>
                             </div>
+                        <div class="snacksdata">
+                        <div class="datatcontainer">
+                            <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-burger"></i> F&B Snacks & Beverages Menu</h3>
+                            <div id="userSnacksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                            </div>
                         </div>
+                    </div>
                     <div class="membershipdata">
                         <div class="datatcontainer">
                             <!-- Active Membership Status Card -->

@@ -228,6 +228,7 @@ $(document).ready(function () {
         $(".subcontainer2 .sessionsdata").hide();
         $(".subcontainer2 .billingdata").hide();
         $(".subcontainer2 .membershipsdata").hide();
+        $(".subcontainer2 .inventorydata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption === "Visitors") {
             populateVisitorGames();
@@ -240,6 +241,8 @@ $(document).ready(function () {
             if (typeof invoiceTable !== 'undefined') invoiceTable.draw();
         } else if (caption === "Memberships") {
             if (typeof membershipTable !== 'undefined') membershipTable.draw();
+        } else if (caption === "Inventory") {
+            if (typeof inventoryTable !== 'undefined') inventoryTable.draw();
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -647,6 +650,33 @@ $(document).ready(function () {
                 render: function (data) {
                     let col = (data === 'ACTIVE') ? '#51cf66' : '#ff6b6b';
                     return `<span style="color:${col}; font-weight:bold;">${data}</span>`;
+                }
+            }
+        ]
+    });
+
+    var inventoryTable = $('#inventoryTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "/inventory/anydata",
+        columns: [
+            { data: 'sku', name: 'sku' },
+            { data: 'name', name: 'name' },
+            { data: 'category_name', name: 'category_name' },
+            { data: 'cost_price', name: 'cost_price' },
+            { data: 'selling_price', name: 'selling_price' },
+            { data: 'stock_quantity', name: 'stock_quantity' },
+            {
+                data: 'status',
+                render: function (data) {
+                    let col = (data === 'AVAILABLE') ? '#51cf66' : '#ff6b6b';
+                    return `<span style="color:${col}; font-weight:bold;">${data}</span>`;
+                }
+            },
+            {
+                data: 'id',
+                render: function (data, type, row) {
+                    return `<button class="btn-restock-item" data-id="${data}" data-name="${row.name}" style="background:#51cf66; color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer;">+ Add Stock</button>`;
                 }
             }
         ]
@@ -1157,4 +1187,79 @@ function viewInvoiceReceipt(invId) {
 
 $('#closeReceiptModal').on('click', function () {
     $('#printableInvoiceModal').hide();
+});
+
+function populateRestockProducts(selectedId = null) {
+    $.ajax({
+        type: "get",
+        url: "/inventory/products",
+        dataType: "json",
+        success: function (res) {
+            $('#restock_product_select').empty();
+            res.forEach(prod => {
+                let sel = (selectedId && prod.id == selectedId) ? 'selected' : '';
+                $('#restock_product_select').append(`<option value="${prod.id}" ${sel}>${prod.name} (Stock: ${prod.stock_quantity})</option>`);
+            });
+        }
+    });
+}
+
+$('#btnOpenRestockModal').on('click', function () {
+    populateRestockProducts();
+    $('#restock_qty').val(10);
+    $('#restock_reason').val('');
+    $('#restock_msg').html('');
+    $('#restockModal').css('display', 'flex');
+});
+
+$(document).on('click', '.btn-restock-item', function () {
+    var prodId = $(this).data('id');
+    populateRestockProducts(prodId);
+    $('#restock_qty').val(10);
+    $('#restock_reason').val('');
+    $('#restock_msg').html('');
+    $('#restockModal').css('display', 'flex');
+});
+
+$('#closeRestockModal').on('click', function () {
+    $('#restockModal').hide();
+});
+
+$('#btnSubmitRestock').on('click', function () {
+    var prodId = $('#restock_product_select').val();
+    var qty = $('#restock_qty').val();
+    var reason = $('#restock_reason').val();
+
+    if (!prodId || !qty || parseInt(qty) <= 0) {
+        $('#restock_msg').html('<span style="color:#ff6b6b;">Please select a product and valid quantity!</span>');
+        return;
+    }
+
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "POST",
+        url: "/inventory/adjuststock",
+        data: {
+            product_id: prodId,
+            quantity: qty,
+            reason: reason
+        },
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+            if (res.success) {
+                $('#restock_msg').html('<span style="color:#51cf66;">Stock updated successfully!</span>');
+                setTimeout(() => {
+                    $('#restockModal').hide();
+                    if (typeof inventoryTable !== 'undefined') inventoryTable.draw();
+                }, 1200);
+            }
+        },
+        error: function (xhr) {
+            $(".loadercontainer").hide();
+            let msg = "Failed to update stock.";
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            $('#restock_msg').html(`<span style="color:#ff6b6b;">${msg}</span>`);
+        }
+    });
 });

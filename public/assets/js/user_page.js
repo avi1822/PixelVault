@@ -388,6 +388,7 @@ $(document).ready(function () {
         $(".subcontainer2 .settingsdata").hide();
         $(".subcontainer2 .billsdata").hide();
         $(".subcontainer2 .membershipdata").hide();
+        $(".subcontainer2 .snacksdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption.toString().toLowerCase() == "home") {
             $(".adminarea .container nav .hiuser").show();
@@ -399,6 +400,8 @@ $(document).ready(function () {
         } else if (caption.toString().toLowerCase() == "membership") {
             loadUserMembership();
             loadMembershipPlans();
+        } else if (caption.toString().toLowerCase() == "snacks") {
+            loadUserSnacks();
         }
     });
     $(".settingsdata input[type='radio']").on("change", function () {
@@ -666,6 +669,66 @@ $(document).on('click', '.btn-buy-plan', function () {
             error: function (xhr) {
                 $(".loadercontainer").hide();
                 let msg = "Failed to purchase plan.";
+                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                alert(msg);
+            }
+        });
+    }
+});
+
+function loadUserSnacks() {
+    $.ajax({
+        type: "get",
+        url: "/inventory/products",
+        dataType: "json",
+        success: function (res) {
+            $('#userSnacksGrid').empty();
+            res.forEach(prod => {
+                let isOut = (prod.stock_quantity <= 0 || prod.status === 'OUT_OF_STOCK');
+                let catName = prod.category ? prod.category.name : 'Snacks';
+                $('#userSnacksGrid').append(`
+                    <div style="background: var(--bgcolor3); border: 1px solid var(--secondc); border-radius: 10px; padding: 15px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                        <div>
+                            <div style="font-size: 0.75rem; color: var(--secondc); font-weight: bold; text-transform: uppercase;">${catName}</div>
+                            <div style="font-size: 1.1rem; font-weight: bold; color: #fff; margin: 8px 0;">${prod.name}</div>
+                            <div style="font-size: 1.3rem; font-weight: bold; color: #51cf66;">Rs.${prod.selling_price}</div>
+                            <div style="font-size: 0.8rem; color: ${isOut ? '#ff6b6b' : '#aaa'}; margin: 5px 0;">
+                                ${isOut ? '❌ OUT OF STOCK' : 'In Stock: ' + prod.stock_quantity}
+                            </div>
+                        </div>
+                        <button class="btn-order-snack" data-id="${prod.id}" data-name="${prod.name}" ${isOut ? 'disabled' : ''} style="background: ${isOut ? '#495057' : 'var(--secondc)'}; color: ${isOut ? '#aaa' : 'var(--bgcolor)'}; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: ${isOut ? 'not-allowed' : 'pointer'}; margin-top: 10px;">
+                            ${isOut ? 'Sold Out' : '🛒 Order Now'}
+                        </button>
+                    </div>
+                `);
+            });
+        }
+    });
+}
+
+$(document).on('click', '.btn-order-snack', function () {
+    var prodId = $(this).data('id');
+    var prodName = $(this).data('name');
+
+    if (confirm(`Order ${prodName}? Invoice will be generated.`)) {
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "POST",
+            url: "/inventory/order",
+            data: {
+                product_id: prodId,
+                quantity: 1
+            },
+            dataType: "json",
+            success: function (res) {
+                $(".loadercontainer").hide();
+                alert(res.message);
+                loadUserSnacks();
+                loadUserInvoices();
+            },
+            error: function (xhr) {
+                $(".loadercontainer").hide();
+                let msg = "Failed to place F&B order.";
                 if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
                 alert(msg);
             }

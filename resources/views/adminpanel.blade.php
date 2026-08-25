@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Inventory" id="menu11">
+                        <label for="menu11">
+                            <i class="fa-solid fa-boxes-stacked"></i>
+                            <div class="text">Inventory & F&B</div>
+                        </label>
                         <input type="radio" name="slidmenu" value="Memberships" id="menu10">
                         <label for="menu10">
                             <i class="fa-solid fa-id-card"></i>
@@ -208,6 +213,29 @@
                                         <th>Start Date</th>
                                         <th>Expiry Date</th>
                                         <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    <div class="inventorydata">
+                        <div class="datatcontainer">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 style="color: var(--secondc); margin: 0;"><i class="fa-solid fa-boxes-stacked"></i> F&B Product & Stock Management</h3>
+                                <button id="btnOpenRestockModal" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">+ Restock / Add Product</button>
+                            </div>
+                            <table id="inventoryTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>SKU</th>
+                                        <th>Product Name</th>
+                                        <th>Category</th>
+                                        <th>Cost Price</th>
+                                        <th>Selling Price</th>
+                                        <th>Stock Quantity</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -632,6 +660,33 @@
             <div style="display: flex; gap: 10px; margin-top: 20px; text-align: center;" class="no-print">
                 <button onclick="window.print()" style="flex: 1; padding: 10px; background: #339af0; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">🖨 Print Invoice</button>
                 <button id="closeReceiptModal" style="flex: 1; padding: 10px; background: #495057; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Close</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Restock & Stock Adjustment Modal -->
+    <div id="restockModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: var(--bgcolor2); border: 1px solid var(--secondc); padding: 25px; border-radius: 12px; width: 90%; max-width: 420px; color: #fff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-boxes-packing"></i> Restock / Add Stock</h3>
+                <button id="closeRestockModal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Select Product *:</label>
+                    <select id="restock_product_select" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Add Quantity *:</label>
+                    <input type="number" id="restock_qty" min="1" value="10" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Reason / Notes:</label>
+                    <input type="text" id="restock_reason" placeholder="e.g. Supplier Shipment #102" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                </div>
+                <button id="btnSubmitRestock" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Update Stock Now</button>
+                <div id="restock_msg" style="font-size: 0.9rem; text-align: center;"></div>
             </div>
         </div>
     </div>

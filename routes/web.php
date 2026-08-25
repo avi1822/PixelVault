@@ -106,7 +106,13 @@ Route::get('membership/plans', [MembershipController::class, 'getPlans']);
 Route::post('membership/purchase', [MembershipController::class, 'purchasePlan'])->middleware('auth');
 Route::get('membership/mymembership', [MembershipController::class, 'myMembership'])->middleware('auth');
 Route::get('membership/anydata', [MembershipController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
-Route::post('membership/storeplan', [MembershipController::class, 'storePlan'])->middleware(['auth', 'isAdmin']);
+use App\Http\Controllers\InventoryController;
+
+Route::get('inventory/products', [InventoryController::class, 'getProducts']);
+Route::post('inventory/order', [InventoryController::class, 'orderProduct'])->middleware('auth');
+Route::get('inventory/anydata', [InventoryController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
+Route::post('inventory/adjuststock', [InventoryController::class, 'adjustStock'])->middleware(['auth', 'isAdmin']);
+Route::post('inventory/storeproduct', [InventoryController::class, 'storeProduct'])->middleware(['auth', 'isAdmin']);
 
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 
