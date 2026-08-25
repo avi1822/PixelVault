@@ -109,14 +109,16 @@ body {
 }
 .homearea nav .navlist label {
     margin-right: 0px;
-    font-size: 1.2rem;
-    padding-inline: 10px;
-    height: 50%;
-    display: grid;
-    place-items: center;
-    width: 6rem;
-    border-radius: 40%;
-    padding-block: 10px;
+    font-size: 1.1rem;
+    padding-inline: 15px;
+    height: 100%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: auto;
+    border-radius: 0;
+    border-bottom: 2px solid transparent;
+    transition: border-color 0.2s ease;
 }
 .homearea nav .navlist input[type="radio"]{
     display: none;
@@ -125,7 +127,7 @@ body {
     border-bottom: 2px solid var(--secondc);
 }
 .homearea nav .navlist label:hover {
-    border-bottom: 1px solid var(--secondcA);
+    border-bottom: 2px solid var(--secondcA);
 }
 
 a {
