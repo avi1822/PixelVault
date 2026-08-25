@@ -32,9 +32,12 @@
                 <div class="navlist">
                     <input type="radio" name="navLinks" value="home" id="navhome" checked><label
                         onclick="$('#navhome').prop('checked', true)" for="navhome"><a href="#">Home</a></label>
+                    <input type="radio" name="navLinks" value="stations" id="navstations"><label
+                        onclick="$('#navstations').prop('checked', true)" for="navstations"><a
+                            href="#stations">Gaming Stations</a></label>
                     <input type="radio" name="navLinks" value="services" id="navservices"><label
                         onclick="$('#navservices').prop('checked', true)" for="navservices"><a
-                            href="#services">services</a></label>
+                            href="#services">Services</a></label>
                     <input type="radio" name="navLinks" value="packages" id="navpackages"><label
                         onclick="$('#navpackages').prop('checked', true)" for="navpackages"><a
                             href="#packages">Packages</a></label>
@@ -62,9 +65,9 @@
                 <div class="container">
                     <div class="subcontainer">
                         <div class="text">
-                            <div class="caption">JOIN US.</div>
+                            <div class="caption">LEVEL UP YOUR GAME.</div>
                             <div class="para">
-                                Welcome to PixelVault, the ultimate gaming cafe experience! Dive into high-performance gaming rigs, ultra-low latency connections, and the latest AAA titles. Whether you're competing in tournaments or gaming with friends, PixelVault is your home.
+                                Welcome to PixelVault, the premier PS5 Gaming Lounge experience! Immerse yourself in 4K HDR Next-Gen console setups, ultra-low latency fiber networking, ergonomic pro lounges, and top AAA multiplayer games.
                             </div>
                             <div class="buttons">
                                 <div class="facebook"><i class="fa-brands fa-facebook-f"></i></div>
@@ -74,7 +77,7 @@
                                     </a>
                                 </div>
                                 <div class="youtube"><i class="fa-brands fa-youtube"></i></div>
-                                <div class="contact"><a href="#contacts">Contact</a></div>
+                                <div class="contact"><a href="#stations">Book Session</a></div>
                             </div>
                         </div>
                     </div>
@@ -98,7 +101,7 @@
                 <div class="dashcard">
                     <div class="icon"><i class="fa-solid fa-desktop"></i></div>
                     <div class="count" id="dashcomputer">30</div>
-                    <div class="desc">Computers</div>
+                    <div class="desc">Gaming Stations</div>
                 </div>
                 <div class="dashcard">
                     <div class="icon"><i class="fa-solid fa-gamepad"></i></div>

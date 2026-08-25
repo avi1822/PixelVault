@@ -46,7 +46,7 @@
                         <input type="radio" name="slidmenu" value="Computers" id="menu2">
                         <label for="menu2">
                             <i class="fa-solid fa-desktop"></i>
-                            <div class="text">Computers</div>
+                            <div class="text">Gaming Stations</div>
                         </label>
                         <input type="radio" name="slidmenu" value="Games" id="menu4">
                         <label for="menu4">
