@@ -87,6 +87,15 @@ Route::get('visitor/anydata', [VisitorEntryController::class, 'anydata'])->middl
 Route::get('visitor/analytics', [VisitorEntryController::class, 'analytics'])->middleware(['auth', 'isAdmin']);
 Route::post('visitor/delete', [VisitorEntryController::class, 'delete'])->middleware(['auth', 'isAdmin']);
 
+use App\Http\Controllers\GamingSessionController;
+
+Route::post('session/start-reservation', [GamingSessionController::class, 'startFromReservation'])->middleware(['auth', 'isAdmin']);
+Route::post('session/start-walkin', [GamingSessionController::class, 'startWalkIn'])->middleware(['auth', 'isAdmin']);
+Route::post('session/end', [GamingSessionController::class, 'endSession'])->middleware(['auth', 'isAdmin']);
+Route::get('session/active', [GamingSessionController::class, 'viewActive'])->middleware(['auth', 'isAdmin']);
+Route::get('session/anydata', [GamingSessionController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
+Route::get('session/usersessions', [GamingSessionController::class, 'userSessions'])->middleware('auth');
+
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 
 Route::get('home/view', [HomeController::class, 'view']);

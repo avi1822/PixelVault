@@ -225,10 +225,14 @@ $(document).ready(function () {
         $(".subcontainer2 .gamesdata").hide();
         $(".subcontainer2 .settingsdata").hide();
         $(".subcontainer2 .visitorsdata").hide();
+        $(".subcontainer2 .sessionsdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption === "Visitors") {
             populateVisitorGames();
             loadVisitorAnalytics();
+        } else if (caption === "Sessions") {
+            loadActiveSessions();
+            if (typeof sessionHistoryTable !== 'undefined') sessionHistoryTable.draw();
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -550,12 +554,39 @@ $(document).ready(function () {
         serverSide: true,
         ajax: "/reservation/anydata",
         columns: [
-            { data: 'user_id', name: 'user_id' },
+            { data: 'id', name: 'id' },
             { data: 'user_name', name: 'user_name' },
             { data: 'date', name: 'date' },
             { data: 'time', name: 'time' },
             { data: 'computer_id', name: 'computer_id' },
             { data: 'package_id', name: 'package_id' },
+            {
+                data: 'id',
+                render: function (data, type, row) {
+                    return `<button class="btn-start-session" data-res-id="${data}" style="background:#51cf66; color:#000; border:none; padding:6px 12px; border-radius:4px; font-weight:bold; cursor:pointer;">▶ Start Session</button>`;
+                }
+            }
+        ]
+    });
+
+    var sessionHistoryTable = $('#sessionHistoryTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "/session/anydata",
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'customer_name', name: 'customer_name' },
+            { data: 'station_label', name: 'station_label' },
+            { data: 'started_at', name: 'started_at' },
+            { data: 'ended_at', name: 'ended_at' },
+            { data: 'duration_minutes', name: 'duration_minutes' },
+            {
+                data: 'status',
+                render: function (data) {
+                    let col = (data === 'ACTIVE') ? '#339af0' : (data === 'COMPLETED' ? '#51cf66' : '#ff6b6b');
+                    return `<span style="color:${col}; font-weight:bold;">${data}</span>`;
+                }
+            }
         ]
     });
     var userTable = $('#userTable').DataTable({
@@ -763,3 +794,177 @@ function updateStationCounts() {
         }
     });
 }
+
+function loadActiveSessions() {
+    $.ajax({
+        type: "get",
+        url: "/session/active",
+        dataType: "json",
+        success: function (res) {
+            $("#activeSessionsGrid").empty();
+            if (res.length === 0) {
+                $("#activeSessionsGrid").html('<div style="color: #aaa; grid-column: 1/-1;">No active gaming sessions running right now.</div>');
+                return;
+            }
+            res.forEach(sess => {
+                let stName = (sess.station_id <= 5) ? `🎮 PS5 Lounge #${sess.station_id}` : `💻 PC Arena #${sess.station_id}`;
+                let custName = sess.user ? (sess.user.first_name + ' ' + sess.user.last_name) : (sess.notes || 'Guest');
+                let remMins = Math.floor(sess.remaining_seconds / 60);
+                let remSecs = sess.remaining_seconds % 60;
+                let timeStr = `${remMins}m ${remSecs}s`;
+                let isExpired = sess.is_expired;
+
+                $("#activeSessionsGrid").append(`
+                    <div style="background: var(--bgcolor3); border: 1px solid ${isExpired ? '#ff6b6b' : 'var(--secondc)'}; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-weight: bold; font-size: 1.1rem; color: var(--secondc); display: flex; justify-content: space-between;">
+                            <span>${stName}</span>
+                            <span style="color: ${isExpired ? '#ff6b6b' : '#51cf66'}; font-size: 0.85rem;">● ${isExpired ? 'EXPIRED' : 'ACTIVE'}</span>
+                        </div>
+                        <div style="font-size: 0.95rem; color: #fff;"><strong>Customer:</strong> ${custName}</div>
+                        <div style="font-size: 0.85rem; color: #aaa;"><strong>Started:</strong> ${new Date(sess.started_at).toLocaleTimeString()}</div>
+                        <div style="font-size: 0.85rem; color: #aaa;"><strong>Expected End:</strong> ${new Date(sess.expected_end_at).toLocaleTimeString()}</div>
+                        <div style="font-size: 1.1rem; font-weight: bold; color: ${isExpired ? '#ff6b6b' : '#339af0'}; margin: 5px 0;">
+                            ⏱ ${isExpired ? 'TIME EXPIRED' : timeStr + ' REMAINING'}
+                        </div>
+                        <button class="btn-end-session" data-session-id="${sess.id}" style="background: #ff6b6b; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">
+                            ⏹ End Gaming Session
+                        </button>
+                    </div>
+                `);
+            });
+        }
+    });
+}
+
+$(document).on('click', '.btn-start-session', function () {
+    var resId = $(this).data('res-id');
+    if (confirm("Start Gaming Session for Reservation #" + resId + "?")) {
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "POST",
+            url: "/session/start-reservation",
+            data: { reservation_id: resId },
+            dataType: "json",
+            success: function (res) {
+                $(".loadercontainer").hide();
+                alert(res.message);
+                updateStationCounts();
+                if (typeof dataTable !== 'undefined') dataTable.draw();
+                loadActiveSessions();
+            },
+            error: function (xhr) {
+                $(".loadercontainer").hide();
+                let msg = "Failed to start session.";
+                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                alert(msg);
+            }
+        });
+    }
+});
+
+$(document).on('click', '.btn-end-session', function () {
+    var sessId = $(this).data('session-id');
+    if (confirm("Are you sure you want to END Gaming Session #" + sessId + "?")) {
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "POST",
+            url: "/session/end",
+            data: { session_id: sessId },
+            dataType: "json",
+            success: function (res) {
+                $(".loadercontainer").hide();
+                alert(res.message);
+                updateStationCounts();
+                loadActiveSessions();
+                if (typeof sessionHistoryTable !== 'undefined') sessionHistoryTable.draw();
+            },
+            error: function (xhr) {
+                $(".loadercontainer").hide();
+                let msg = "Failed to end session.";
+                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                alert(msg);
+            }
+        });
+    }
+});
+
+$('#btnStartWalkInModal').on('click', function () {
+    $('#walkin_guest_name').val('');
+    $('#walkin_msg').html('');
+    // Populate stations
+    $.ajax({
+        type: "get",
+        url: "/computer/viewAll",
+        dataType: "json",
+        success: function (res) {
+            $('#walkin_station_select').empty();
+            res.forEach(st => {
+                if (st.status === 'AVAILABLE') {
+                    let labelText = (st.cid <= 5) ? `PS5 Lounge #${st.cid}` : `PC Arena #${st.cid}`;
+                    $('#walkin_station_select').append(`<option value="${st.cid}">${labelText}</option>`);
+                }
+            });
+            if ($('#walkin_station_select option').length === 0) {
+                $('#walkin_station_select').append('<option value="">No AVAILABLE stations</option>');
+            }
+        }
+    });
+    // Populate packages
+    $.ajax({
+        type: "get",
+        url: "/package/viewall",
+        dataType: "json",
+        success: function (res) {
+            $('#walkin_package_select').empty();
+            res.forEach(pkg => {
+                $('#walkin_package_select').append(`<option value="${pkg.package_id}">${pkg.package_name} (${pkg.package_time}hr - Rs.${pkg.package_price})</option>`);
+            });
+        }
+    });
+    $('#walkInModal').css('display', 'flex');
+});
+
+$('#closeWalkInModal').on('click', function () {
+    $('#walkInModal').hide();
+});
+
+$('#btnSubmitWalkIn').on('click', function () {
+    var guestName = $('#walkin_guest_name').val();
+    var stationId = $('#walkin_station_select').val();
+    var packageId = $('#walkin_package_select').val();
+
+    if (!stationId || !packageId) {
+        $('#walkin_msg').html('<span style="color:#ff6b6b;">Please select an available station and package!</span>');
+        return;
+    }
+
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "POST",
+        url: "/session/start-walkin",
+        data: {
+            customer_name: guestName,
+            station_id: stationId,
+            package_id: packageId
+        },
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+            if (res.success) {
+                $('#walkin_msg').html('<span style="color:#51cf66;">Walk-in Session started!</span>');
+                setTimeout(() => {
+                    $('#walkInModal').hide();
+                    updateStationCounts();
+                    loadActiveSessions();
+                    if (typeof sessionHistoryTable !== 'undefined') sessionHistoryTable.draw();
+                }, 1200);
+            }
+        },
+        error: function (xhr) {
+            $(".loadercontainer").hide();
+            let msg = "Failed to start walk-in session.";
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            $('#walkin_msg').html(`<span style="color:#ff6b6b;">${msg}</span>`);
+        }
+    });
+});

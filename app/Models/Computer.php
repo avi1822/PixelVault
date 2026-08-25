@@ -16,4 +16,8 @@ class Computer extends Model
     {
         return $this->belongsToMany(Game::class, "computer_game", "computer_id", "game_id");
     }
+    public function sessions()
+    {
+        return $this->hasMany(GamingSession::class, 'station_id', 'cid');
+    }
 }

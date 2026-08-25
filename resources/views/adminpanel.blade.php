@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Sessions" id="menu8">
+                        <label for="menu8">
+                            <i class="fa-solid fa-stopwatch"></i>
+                            <div class="text">Active Sessions</div>
+                        </label>
                         <input type="radio" name="slidmenu" value="Visitors" id="menu7">
                         <label for="menu7">
                             <i class="fa-solid fa-clipboard-user"></i>
@@ -105,6 +110,35 @@
                                         <th>Time</th>
                                         <th>Station #</th>
                                         <th>Package</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                    <div class="sessionsdata">
+                        <div class="datatcontainer">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 style="color: var(--secondc); margin: 0;"><i class="fa-solid fa-stopwatch"></i> Active Gaming Sessions</h3>
+                                <button id="btnStartWalkInModal" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">+ Start Walk-in Session</button>
+                            </div>
+                            <div id="activeSessionsGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(280px, 1fr)); gap: 15px; margin-bottom: 30px;">
+                                <div style="color: #aaa;">No active gaming sessions running right now.</div>
+                            </div>
+
+                            <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-clock-rotate-left"></i> Session History</h3>
+                            <table id="sessionHistoryTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Session ID</th>
+                                        <th>Customer</th>
+                                        <th>Station</th>
+                                        <th>Started At</th>
+                                        <th>Ended At</th>
+                                        <th>Duration (mins)</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -438,6 +472,34 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Walk-in Session Modal -->
+    <div id="walkInModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: var(--bgcolor2); border: 1px solid var(--secondc); padding: 25px; border-radius: 12px; width: 90%; max-width: 420px; color: #fff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-person-walking"></i> Start Walk-in Session</h3>
+                <button id="closeWalkInModal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Guest / Customer Name:</label>
+                    <input type="text" id="walkin_guest_name" placeholder="e.g. Rahul Sharma" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Select Station *:</label>
+                    <select id="walkin_station_select" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                    </select>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Select Package *:</label>
+                    <select id="walkin_package_select" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                    </select>
+                </div>
+                <button id="btnSubmitWalkIn" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Start Session Now</button>
+                <div id="walkin_msg" style="font-size: 0.9rem; text-align: center;"></div>
             </div>
         </div>
     </div>
