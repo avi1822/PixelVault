@@ -96,7 +96,7 @@
                 </div>
             </div>
         </section>
-        <section class="dashboard">
+        <section class="dashboard" id="stations">
             <div class="dashcontainer">
                 <div class="dashcard">
                     <div class="icon"><i class="fa-solid fa-desktop"></i></div>
