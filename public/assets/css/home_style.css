@@ -116,18 +116,32 @@ body {
     align-items: center;
     justify-content: center;
     width: auto;
-    border-radius: 0;
-    border-bottom: 2px solid transparent;
-    transition: border-color 0.2s ease;
+    position: relative;
+    white-space: nowrap;
+    cursor: pointer;
+}
+.homearea nav .navlist label::after {
+    content: '';
+    position: absolute;
+    bottom: 0;
+    left: 50%;
+    width: 0;
+    height: 3px;
+    background-color: var(--secondc);
+    border-radius: 3px;
+    box-shadow: 0 0 8px var(--secondc);
+    transition: width 0.3s ease, left 0.3s ease;
 }
 .homearea nav .navlist input[type="radio"]{
     display: none;
 }
-.homearea nav .navlist input[name="navLinks"]:checked + label{
-    border-bottom: 2px solid var(--secondc);
+.homearea nav .navlist input[name="navLinks"]:checked + label::after {
+    width: 80%;
+    left: 10%;
 }
-.homearea nav .navlist label:hover {
-    border-bottom: 2px solid var(--secondcA);
+.homearea nav .navlist label:hover::after {
+    width: 80%;
+    left: 10%;
 }
 
 a {
