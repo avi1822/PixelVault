@@ -285,11 +285,11 @@
                                             <div class="text">Retype New Password</div>
                                             <input type="text" name="confirmPassword" id="confirmPassword">
                                             <div class="error" id="uuconpass"></div>
-                                        </div>
-                                    </div>
                                 </div>
                             </div>
-                        <div class="snacksdata">
+                        </div>
+                    </div>
+                    <div class="snacksdata">
                         <div class="datatcontainer">
                             <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-burger"></i> F&B Snacks & Beverages Menu</h3>
                             <div id="userSnacksGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(220px, 1fr)); gap: 20px; margin-bottom: 30px;">
