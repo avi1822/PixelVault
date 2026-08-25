@@ -123,25 +123,27 @@ body {
 .homearea nav .navlist label::after {
     content: '';
     position: absolute;
-    bottom: 0;
+    bottom: -8px;
     left: 50%;
+    transform: translateX(-50%);
     width: 0;
-    height: 3px;
-    background-color: var(--secondc);
-    border-radius: 3px;
-    box-shadow: 0 0 8px var(--secondc);
-    transition: width 0.3s ease, left 0.3s ease;
+    height: 14px;
+    border-radius: 50%;
+    border-bottom: 2.5px solid var(--secondc);
+    box-shadow: 0 4px 10px var(--secondcA);
+    transition: width 0.3s ease, opacity 0.3s ease;
+    opacity: 0;
 }
 .homearea nav .navlist input[type="radio"]{
     display: none;
 }
 .homearea nav .navlist input[name="navLinks"]:checked + label::after {
-    width: 80%;
-    left: 10%;
+    width: 85%;
+    opacity: 1;
 }
 .homearea nav .navlist label:hover::after {
-    width: 80%;
-    left: 10%;
+    width: 85%;
+    opacity: 1;
 }
 
 a {
