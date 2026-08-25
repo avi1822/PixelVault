@@ -112,7 +112,9 @@ Route::get('inventory/products', [InventoryController::class, 'getProducts']);
 Route::post('inventory/order', [InventoryController::class, 'orderProduct'])->middleware('auth');
 Route::get('inventory/anydata', [InventoryController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
 Route::post('inventory/adjuststock', [InventoryController::class, 'adjustStock'])->middleware(['auth', 'isAdmin']);
-Route::post('inventory/storeproduct', [InventoryController::class, 'storeProduct'])->middleware(['auth', 'isAdmin']);
+use App\Http\Controllers\AnalyticsController;
+
+Route::get('analytics/dashboard', [AnalyticsController::class, 'dashboard'])->middleware(['auth', 'isAdmin']);
 
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 
