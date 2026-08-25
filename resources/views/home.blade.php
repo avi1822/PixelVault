@@ -59,9 +59,6 @@
             <div class="wall">
                 <div class="upperlayer"></div>
                 <div class="wallimg"></div>
-                <div class="lineart">
-                    <div class="line1"></div>
-                </div>
                 <div class="container">
                     <div class="subcontainer">
                         <div class="text">
