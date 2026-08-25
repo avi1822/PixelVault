@@ -78,17 +78,6 @@
                             </div>
                         </div>
                     </div>
-                    <div class="subcontainer2">
-                        <div class="target" id="target">
-                            <div class="circle"></div>
-                        </div>
-                        <div class="img"></div>
-                        <div class="back">
-                            <div class="box1 box"></div>
-                            <div class="box2 box"></div>
-                            <div class="box3 box"></div>
-                            <div class="box4 box"></div>
-                        </div>
                     </div>
                 </div>
             </div>
