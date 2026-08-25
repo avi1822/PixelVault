@@ -6,6 +6,7 @@ use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
 use App\Models\Reservation;
 use App\Models\Package;
+use App\Models\Computer;
 use Yajra\Datatables\Datatables;
 
 class ReservationController extends Controller
@@ -25,6 +26,23 @@ class ReservationController extends Controller
 
         $package = Package::where('package_id', $request->packid)->first();
         $pkgTime = $package ? $package->package_time : 1;
+
+        // Validate past dates
+        if (strtotime($date) < strtotime(date('Y-m-d'))) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Cannot book reservations for past dates!'
+            ], 422);
+        }
+
+        // Validate station operational status
+        $station = Computer::where('cid', $pcid)->first();
+        if ($station && in_array($station->status, ['MAINTENANCE', 'OFFLINE'])) {
+            return response()->json([
+                'status' => 'error',
+                'message' => 'Station #' . $pcid . ' is currently under ' . $station->status . ' and cannot be reserved!'
+            ], 422);
+        }
 
         // Check for conflicting reservations for this station & date
         $existingReservations = Reservation::where('date', $date)

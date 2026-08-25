@@ -71,6 +71,31 @@
                     </div> --}}
                     <div class="reservationsdata">
                         <div class="datatcontainer">
+                            <div class="station-overview-cards" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                                <div class="st-card" style="flex: 1; min-width: 140px; background: var(--bgcolor3); border-left: 4px solid #51cf66; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">🟢 AVAILABLE STATIONS</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #51cf66;" id="cntAvailable">--</div>
+                                </div>
+                                <div class="st-card" style="flex: 1; min-width: 140px; background: var(--bgcolor3); border-left: 4px solid #cc5de8; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">🟣 RESERVED STATIONS</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #cc5de8;" id="cntReserved">--</div>
+                                </div>
+                                <div class="st-card" style="flex: 1; min-width: 140px; background: var(--bgcolor3); border-left: 4px solid #339af0; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">🔵 PLAYING STATIONS</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #339af0;" id="cntPlaying">--</div>
+                                </div>
+                                <div class="st-card" style="flex: 1; min-width: 140px; background: var(--bgcolor3); border-left: 4px solid #fcc419; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">🟡 MAINTENANCE</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #fcc419;" id="cntMaintenance">--</div>
+                                </div>
+                                <div class="st-card" style="flex: 1; min-width: 140px; background: var(--bgcolor3); border-left: 4px solid #ff6b6b; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">🔴 OFFLINE</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b;" id="cntOffline">--</div>
+                                </div>
+                            </div>
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 12px;">
+                                <h3 style="color: var(--secondc); margin: 0;"><i class="fa-solid fa-calendar-check"></i> Today's Reservations</h3>
+                            </div>
                             <table id="dataTable">
                                 <thead>
                                     <tr>
@@ -78,7 +103,7 @@
                                         <th>Name</th>
                                         <th>Date</th>
                                         <th>Time</th>
-                                        <th>Computer</th>
+                                        <th>Station #</th>
                                         <th>Package</th>
                                     </tr>
                                 </thead>
@@ -108,28 +133,49 @@
                     </div>
                     <div class="computersdata">
                         <div class="datatcontainer">
+                            <div class="station-filter-bar" style="display: flex; gap: 10px; margin-bottom: 15px; flex-wrap: wrap;">
+                                <button class="st-filter-btn active" data-status="" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">ALL</button>
+                                <button class="st-filter-btn" data-status="AVAILABLE" style="background: var(--bgcolor3); color: #51cf66; border: 1px solid #51cf66; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">🟢 AVAILABLE</button>
+                                <button class="st-filter-btn" data-status="RESERVED" style="background: var(--bgcolor3); color: #cc5de8; border: 1px solid #cc5de8; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">🟣 RESERVED</button>
+                                <button class="st-filter-btn" data-status="PLAYING" style="background: var(--bgcolor3); color: #339af0; border: 1px solid #339af0; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">🔵 PLAYING</button>
+                                <button class="st-filter-btn" data-status="MAINTENANCE" style="background: var(--bgcolor3); color: #fcc419; border: 1px solid #fcc419; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">🟡 MAINTENANCE</button>
+                                <button class="st-filter-btn" data-status="OFFLINE" style="background: var(--bgcolor3); color: #ff6b6b; border: 1px solid #ff6b6b; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;">🔴 OFFLINE</button>
+                            </div>
                             <div class="con">
                                 <div class="pcline"></div>
                                 <div class="buttons">
                                     <button id="newpcbtn">New</button>
-                                    <button id="updatepcbtn">Update</button>
+                                    <button id="updatepcbtn">Update Specs</button>
                                     <button id="deletepcbtn">Delete</button>
                                 </div>
                             </div>
                             <div class="con2">
-                                <div class="pcname" id="computername">PC - 01</div>
+                                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                                    <div class="pcname" id="computername">Station #01</div>
+                                    <div style="display: flex; align-items: center; gap: 10px;">
+                                        <label for="stationStatusSelect" style="font-weight: bold; color: var(--secondc);">Operational Status:</label>
+                                        <select id="stationStatusSelect" style="background: var(--bgcolor3); color: #fff; border: 1px solid var(--secondc); padding: 8px 12px; border-radius: 6px; font-weight: bold;">
+                                            <option value="AVAILABLE">🟢 AVAILABLE</option>
+                                            <option value="RESERVED">🟣 RESERVED</option>
+                                            <option value="PLAYING">🔵 PLAYING</option>
+                                            <option value="MAINTENANCE">🟡 MAINTENANCE</option>
+                                            <option value="OFFLINE">🔴 OFFLINE</option>
+                                        </select>
+                                        <button id="saveStatusBtn" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 8px 16px; border-radius: 6px; font-weight: bold; cursor: pointer;">Save Status</button>
+                                    </div>
+                                </div>
                                 <div class="exp">
-                                    <div class="text">Select Games</div><i class="fa-solid fa-angle-down"></i>
+                                    <div class="text">Select Installed Games</div><i class="fa-solid fa-angle-down"></i>
                                 </div>
                                 <div class="pcgames"></div>
                                 <div class="exp">
-                                    <div class="text">Edit details</div><i class="fa-solid fa-angle-down"></i>
+                                    <div class="text">Edit Specifications</div><i class="fa-solid fa-angle-down"></i>
                                 </div>
                                 <div class="pcspecs">
-                                    <input type="text" id="pcspec1" placeholder="Spec 1">
-                                    <input type="text" id="pcspec2" placeholder="Spec 2">
-                                    <input type="text" id="pcspec3" placeholder="Spec 3">
-                                    <input type="text" id="pcspec4" placeholder="Spec 4">
+                                    <input type="text" id="pcspec1" placeholder="Spec 1 (e.g. PS5 Pro 4K HDR)">
+                                    <input type="text" id="pcspec2" placeholder="Spec 2 (e.g. 120Hz OLED Display)">
+                                    <input type="text" id="pcspec3" placeholder="Spec 3 (e.g. DualSense Edge Controller)">
+                                    <input type="text" id="pcspec4" placeholder="Spec 4 (e.g. 3D Audio Headset)">
                                     <input type="text" id="pcspec5" placeholder="Spec 5">
                                     <input type="text" id="pcspec6" placeholder="Spec 6">
                                     <input type="text" id="pcspec7" placeholder="Spec 7">

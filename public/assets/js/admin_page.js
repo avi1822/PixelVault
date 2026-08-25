@@ -2,49 +2,69 @@ var selectedpc;
 var gameid;
 var gamearray = [];
 
-function cratePc() {
+var currentStatusFilter = "";
+
+function cratePc(statusFilter) {
+    if (statusFilter !== undefined) currentStatusFilter = statusFilter;
     $(".loadercontainer").show();
     $.ajax({
         type: "get",
         url: "/computer/view",
+        data: { "status": currentStatusFilter },
         success: function (response) {
+            $(".adminarea .subcontainer2 .computersdata .con .pcline").html("");
             for (var i in response) {
-                $(".adminarea .subcontainer2 .computersdata .con .pcline").append(`<input type="radio" name="computer" value="${response[i].cid}" id="pc${response[i].cid}">
-                <label for="pc${response[i].cid}" id="pcl${response[i].cid}" class="pc">${response[i].cid}</label>`);
+                let st = response[i].status || 'AVAILABLE';
+                let borderCol = '#51cf66';
+                if (st === 'RESERVED') borderCol = '#cc5de8';
+                else if (st === 'PLAYING') borderCol = '#339af0';
+                else if (st === 'MAINTENANCE') borderCol = '#fcc419';
+                else if (st === 'OFFLINE') borderCol = '#ff6b6b';
+
+                $(".adminarea .subcontainer2 .computersdata .con .pcline").append(
+                    `<input type="radio" name="computer" value="${response[i].cid}" id="pc${response[i].cid}">
+                    <label for="pc${response[i].cid}" id="pcl${response[i].cid}" class="pc" style="border: 2px solid ${borderCol}; shadow: 0 0 5px ${borderCol};">${response[i].cid}</label>`
+                );
             }
             $('.subcontainer2 .computersdata .pcline input[name="computer"]').on("change", function () {
                 displayPcDetails($(this).val());
             });
+            if (response.length > 0) {
+                displayPcDetails(response[0].cid);
+            }
             $(".loadercontainer").hide();
         }
-
     });
 }
 function displayPcDetails(cid) {
     $(".loadercontainer").show();
     selectedpc = cid;
-    console.log(selectedpc)
     $.ajax({
         type: "get",
         url: "/computer/viewone",
         data: { "cid": cid },
         dataType: "json",
         success: function (response) {
-            $("#pcspec1").val(response[0].spec1);
-            $("#pcspec2").val(response[0].spec2);
-            $("#pcspec3").val(response[0].spec3);
-            $("#pcspec4").val(response[0].spec4);
-            $("#pcspec5").val(response[0].spec5);
-            $("#pcspec6").val(response[0].spec6);
-            $("#pcspec7").val(response[0].spec7);
-            $("#computername").html(`PC - ${cid}`);
+            if (response.length > 0) {
+                $("#pcspec1").val(response[0].spec1);
+                $("#pcspec2").val(response[0].spec2);
+                $("#pcspec3").val(response[0].spec3);
+                $("#pcspec4").val(response[0].spec4);
+                $("#pcspec5").val(response[0].spec5);
+                $("#pcspec6").val(response[0].spec6);
+                $("#pcspec7").val(response[0].spec7);
+                let st = response[0].status || 'AVAILABLE';
+                $("#stationStatusSelect").val(st);
+                let labelText = (cid <= 5) ? `PS5 Lounge #${cid}` : `PC Arena #${cid}`;
+                $("#computername").html(`${labelText} (${st})`);
 
-            gamearray = [];
-            $("input:checkbox[name='pcgame']").prop("checked", false);
-            response[0].games.forEach(game => {
-                $(`#pcgame${game.id}`).prop("checked", true);
-                gamearray.push(game.id);
-            });
+                gamearray = [];
+                $("input:checkbox[name='pcgame']").prop("checked", false);
+                response[0].games.forEach(game => {
+                    $(`#pcgame${game.id}`).prop("checked", true);
+                    gamearray.push(game.id);
+                });
+            }
             $(".loadercontainer").hide();
         }
     });
@@ -135,27 +155,64 @@ function setUserData() {
 $(document).ready(function () {
     cratePc();
     crategame();
-    createPackage()
+    createPackage();
     createProPics();
+    updateStationCounts();
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
         }
     });
-    $(".logo").on("click", function () {
-        $(".subcontainer").toggleClass("subcontainerwidth");
-        $(".subcontainer .ul .text").toggle(10);
-        $(".logo i").toggle(50);
-        $(".logo .text").toggle(50);
-        if (!$(".subcontainer").hasClass("subcontainerwidth")) {
-            $(".logo").animate({ width: "4%" }, 100);
-            $(".subcontainer").animate({ width: "4%" }, 100);
-            $(".subcontainer2").animate({ width: "96%" }, 100);
-        } else {
-            $(".logo").animate({ width: "12%" }, 100);
-            $(".subcontainer").animate({ width: "12%" }, 100);
-            $(".subcontainer2").animate({ width: "88%" }, 100);
-        };
+    $('.st-filter-btn').on('click', function () {
+        $('.st-filter-btn').css({ background: 'var(--bgcolor3)', color: '#fff', border: '1px solid var(--secondc)' });
+        $(this).css({ background: 'var(--secondc)', color: 'var(--bgcolor)', border: 'none' });
+        let st = $(this).data('status');
+        cratePc(st);
+    });
+
+    $('#saveStatusBtn').on('click', function () {
+        if (!selectedpc) {
+            alert("Please select a Gaming Station first!");
+            return;
+        }
+        let newStatus = $('#stationStatusSelect').val();
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "POST",
+            url: "/computer/status",
+            data: { "cid": selectedpc, "status": newStatus },
+            dataType: "json",
+            success: function (response) {
+                $(".loadercontainer").hide();
+                if (response.success) {
+                    alert(`Station #${selectedpc} status updated to ${newStatus}!`);
+                    cratePc();
+                } else if (response.warning) {
+                    if (confirm(response.message)) {
+                        $(".loadercontainer").show();
+                        $.ajax({
+                            type: "POST",
+                            url: "/computer/status",
+                            data: { "cid": selectedpc, "status": newStatus, "confirm": true },
+                            dataType: "json",
+                            success: function (res2) {
+                                $(".loadercontainer").hide();
+                                alert(`Station #${selectedpc} status updated to ${newStatus}!`);
+                                cratePc();
+                            }
+                        });
+                    }
+                }
+            },
+            error: function (xhr) {
+                $(".loadercontainer").hide();
+                let msg = "Failed to update station status.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = typeof xhr.responseJSON.message === 'string' ? xhr.responseJSON.message : JSON.stringify(xhr.responseJSON.message);
+                }
+                alert(msg);
+            }
+        });
     });
 
     $('.subcontainer input[name="slidmenu"]').on("change", function () {
@@ -679,6 +736,30 @@ function loadVisitorAnalytics() {
             $("#v_stat_ps5").text(res.upperFloor);
             $("#v_stat_pc").text(res.lowerFloor);
             $("#v_stat_topgame").text(res.topGame);
+        }
+    });
+}
+
+function updateStationCounts() {
+    $.ajax({
+        type: "get",
+        url: "/computer/viewAll",
+        dataType: "json",
+        success: function (res) {
+            let cntAvail = 0, cntRes = 0, cntPlay = 0, cntMaint = 0, cntOff = 0;
+            res.forEach(item => {
+                let st = item.status || 'AVAILABLE';
+                if (st === 'AVAILABLE') cntAvail++;
+                else if (st === 'RESERVED') cntRes++;
+                else if (st === 'PLAYING') cntPlay++;
+                else if (st === 'MAINTENANCE') cntMaint++;
+                else if (st === 'OFFLINE') cntOff++;
+            });
+            $("#cntAvailable").text(cntAvail);
+            $("#cntReserved").text(cntRes);
+            $("#cntPlaying").text(cntPlay);
+            $("#cntMaintenance").text(cntMaint);
+            $("#cntOffline").text(cntOff);
         }
     });
 }

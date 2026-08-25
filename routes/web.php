@@ -65,13 +65,14 @@ Route::get('game/anydata', [GameController::class, 'anydata']);
 Route::get('game/partofdata', [GameController::class, 'partofdata']);
 Route::get('game/getlatest', [GameController::class, 'getLatest']);
 
-Route::post('computer/store', [ComputerController::class, 'store']);
-Route::post('computer/update', [ComputerController::class, 'update']);
+Route::post('computer/store', [ComputerController::class, 'store'])->middleware(['auth', 'isAdmin']);
+Route::post('computer/update', [ComputerController::class, 'update'])->middleware(['auth', 'isAdmin']);
+Route::post('computer/status', [ComputerController::class, 'updateStatus'])->middleware(['auth', 'isAdmin']);
 Route::get('computer/view', [ComputerController::class, 'view']);
 Route::get('computer/viewhGame', [ComputerController::class, 'viewhGame']);
 Route::get('computer/viewone', [ComputerController::class, 'viewone']);
 Route::get('computer/viewoneimg', [ComputerController::class, 'viewoneimg']);
-Route::get('computer/delete', [ComputerController::class, 'delete']);
+Route::get('computer/delete', [ComputerController::class, 'delete'])->middleware(['auth', 'isAdmin']);
 
 use App\Http\Controllers\VisitorEntryController;
 

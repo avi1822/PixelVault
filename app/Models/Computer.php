@@ -11,6 +11,7 @@ class Computer extends Model
     use HasFactory;
     protected $primaryKey = 'cid';
     public $incrementing = false;
+    protected $fillable = ['cid', 'spec1', 'spec2', 'spec3', 'spec4', 'spec5', 'spec6', 'spec7', 'status'];
     public function games()
     {
         return $this->belongsToMany(Game::class, "computer_game", "computer_id", "game_id");
