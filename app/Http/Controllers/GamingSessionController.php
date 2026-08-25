@@ -192,6 +192,9 @@ class GamingSessionController extends Controller
                 'duration_minutes' => $actualDurationMinutes
             ]);
 
+            // Automatically generate historical invoice for this completed session
+            $invoice = \App\Http\Controllers\BillingController::createInvoiceForSession($session);
+
             // Restore station status: check if upcoming reservations exist today
             $stationId = $session->station_id;
             $hasUpcomingRes = Reservation::where('computer_id', $stationId)

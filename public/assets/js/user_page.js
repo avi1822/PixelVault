@@ -386,11 +386,15 @@ $(document).ready(function () {
         $(".subcontainer2 .packagesdata").hide();
         $(".subcontainer2 .gamesdata").hide();
         $(".subcontainer2 .settingsdata").hide();
+        $(".subcontainer2 .billsdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption.toString().toLowerCase() == "home") {
             $(".adminarea .container nav .hiuser").show();
         } else {
             $(".adminarea .container nav .hiuser").hide();
+        }
+        if (caption.toString().toLowerCase() == "bills") {
+            loadUserInvoices();
         }
     });
     $(".settingsdata input[type='radio']").on("change", function () {
@@ -551,3 +555,31 @@ $(document).ready(function () {
         ]
     });
 });
+
+function loadUserInvoices() {
+    $.ajax({
+        type: "get",
+        url: "/billing/userinvoices",
+        dataType: "json",
+        success: function (res) {
+            $("#userInvoiceBody").empty();
+            if (res.length === 0) {
+                $("#userInvoiceBody").html('<tr><td colspan="6" style="text-align:center; color:#aaa;">No invoices found.</td></tr>');
+                return;
+            }
+            res.forEach(inv => {
+                let stColor = (inv.status === 'PAID') ? '#51cf66' : (inv.status === 'PARTIALLY_PAID' ? '#fcc419' : '#ff6b6b');
+                $("#userInvoiceBody").append(`
+                    <tr style="border-bottom: 1px solid rgba(255,255,255,0.1);">
+                        <td style="padding: 10px;"><strong>${inv.invoice_number}</strong></td>
+                        <td style="padding: 10px;">${new Date(inv.issued_at).toLocaleDateString()}</td>
+                        <td style="padding: 10px;">Rs.${inv.total}</td>
+                        <td style="padding: 10px; color:#51cf66;">Rs.${inv.paid_amount}</td>
+                        <td style="padding: 10px;"><span style="color:${stColor}; font-weight:bold;">${inv.status}</span></td>
+                        <td style="padding: 10px;"><button onclick="viewInvoiceReceipt(${inv.id})" style="background:var(--secondc); color:var(--bgcolor); border:none; padding:5px 10px; border-radius:4px; font-weight:bold; cursor:pointer;">View Receipt</button></td>
+                    </tr>
+                `);
+            });
+        }
+    });
+}

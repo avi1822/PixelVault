@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Bills" id="menu7">
+                        <label for="menu7">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                            <div class="text">My Bills</div>
+                        </label>
                     </div>
                 </div>
                 <div class="subcontainer2" id="mainsubcontainer2">
@@ -274,6 +279,25 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="billsdata">
+                        <div class="datatcontainer">
+                            <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-file-invoice-dollar"></i> My Invoices & Payment History</h3>
+                            <table id="userInvoiceTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice #</th>
+                                        <th>Date</th>
+                                        <th>Total Amount</th>
+                                        <th>Paid Amount</th>
+                                        <th>Status</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody id="userInvoiceBody">
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

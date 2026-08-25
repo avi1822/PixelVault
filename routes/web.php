@@ -94,7 +94,13 @@ Route::post('session/start-walkin', [GamingSessionController::class, 'startWalkI
 Route::post('session/end', [GamingSessionController::class, 'endSession'])->middleware(['auth', 'isAdmin']);
 Route::get('session/active', [GamingSessionController::class, 'viewActive'])->middleware(['auth', 'isAdmin']);
 Route::get('session/anydata', [GamingSessionController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
-Route::get('session/usersessions', [GamingSessionController::class, 'userSessions'])->middleware('auth');
+use App\Http\Controllers\BillingController;
+
+Route::get('billing/anydata', [BillingController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
+Route::get('billing/stats', [BillingController::class, 'summaryStats'])->middleware(['auth', 'isAdmin']);
+Route::post('billing/payment', [BillingController::class, 'recordPayment'])->middleware(['auth', 'isAdmin']);
+Route::get('billing/invoice/{id}', [BillingController::class, 'viewInvoice'])->middleware('auth');
+Route::get('billing/userinvoices', [BillingController::class, 'userInvoices'])->middleware('auth');
 
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 

@@ -226,6 +226,7 @@ $(document).ready(function () {
         $(".subcontainer2 .settingsdata").hide();
         $(".subcontainer2 .visitorsdata").hide();
         $(".subcontainer2 .sessionsdata").hide();
+        $(".subcontainer2 .billingdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption === "Visitors") {
             populateVisitorGames();
@@ -233,6 +234,9 @@ $(document).ready(function () {
         } else if (caption === "Sessions") {
             loadActiveSessions();
             if (typeof sessionHistoryTable !== 'undefined') sessionHistoryTable.draw();
+        } else if (caption === "Billing") {
+            loadBillingSummary();
+            if (typeof invoiceTable !== 'undefined') invoiceTable.draw();
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -585,6 +589,35 @@ $(document).ready(function () {
                 render: function (data) {
                     let col = (data === 'ACTIVE') ? '#339af0' : (data === 'COMPLETED' ? '#51cf66' : '#ff6b6b');
                     return `<span style="color:${col}; font-weight:bold;">${data}</span>`;
+                }
+            }
+        ]
+    });
+
+    var invoiceTable = $('#invoiceTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "/billing/anydata",
+        columns: [
+            { data: 'invoice_number', name: 'invoice_number' },
+            { data: 'customer_name', name: 'customer_name' },
+            { data: 'subtotal', name: 'subtotal' },
+            { data: 'total', name: 'total' },
+            { data: 'paid_amount', name: 'paid_amount' },
+            {
+                data: 'status',
+                render: function (data) {
+                    let col = (data === 'PAID') ? '#51cf66' : (data === 'PARTIALLY_PAID' ? '#fcc419' : '#ff6b6b');
+                    return `<span style="color:${col}; font-weight:bold;">${data}</span>`;
+                }
+            },
+            { data: 'issued_at', name: 'issued_at' },
+            {
+                data: 'id',
+                render: function (data, type, row) {
+                    let btnPay = (row.status !== 'PAID' && row.status !== 'CANCELLED') ? 
+                        `<button class="btn-open-payment" data-id="${data}" data-num="${row.invoice_number}" data-total="${row.total}" data-paid="${row.paid_amount}" style="background:#51cf66; color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:5px;">💵 Pay</button>` : '';
+                    return `${btnPay}<button class="btn-view-invoice" data-id="${data}" style="background:#339af0; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer;">🧾 View</button>`;
                 }
             }
         ]
@@ -967,4 +1000,132 @@ $('#btnSubmitWalkIn').on('click', function () {
             $('#walkin_msg').html(`<span style="color:#ff6b6b;">${msg}</span>`);
         }
     });
+});
+
+function loadBillingSummary() {
+    $.ajax({
+        type: "get",
+        url: "/billing/stats",
+        dataType: "json",
+        success: function (res) {
+            $("#b_stat_sales").text('Rs.' + res.todaySales);
+            $("#b_stat_paid").text('Rs.' + res.todayPaid);
+            $("#b_stat_pending").text('Rs.' + res.todayPending);
+            $("#b_stat_count").text(res.totalInvoicesCount);
+        }
+    });
+}
+
+$(document).on('click', '.btn-open-payment', function () {
+    var invId = $(this).data('id');
+    var invNum = $(this).data('num');
+    var total = parseInt($(this).data('total'));
+    var paid = parseInt($(this).data('paid'));
+    var rem = Math.max(0, total - paid);
+
+    $('#pay_invoice_id').val(invId);
+    $('#pay_inv_num').text(invNum);
+    $('#pay_total_amt').text(total);
+    $('#pay_rem_amt').text(rem);
+    $('#pay_amount').val(rem);
+    $('#pay_ref').val('');
+    $('#pay_msg').html('');
+    $('#paymentModal').css('display', 'flex');
+});
+
+$('#closePaymentModal').on('click', function () {
+    $('#paymentModal').hide();
+});
+
+$('#btnSubmitPayment').on('click', function () {
+    var invId = $('#pay_invoice_id').val();
+    var amt = $('#pay_amount').val();
+    var method = $('#pay_method').val();
+    var ref = $('#pay_ref').val();
+
+    if (!amt || parseInt(amt) <= 0) {
+        $('#pay_msg').html('<span style="color:#ff6b6b;">Please enter a valid payment amount!</span>');
+        return;
+    }
+
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "POST",
+        url: "/billing/payment",
+        data: {
+            invoice_id: invId,
+            amount: amt,
+            method: method,
+            transaction_reference: ref
+        },
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+            if (res.success) {
+                $('#pay_msg').html('<span style="color:#51cf66;">Payment recorded successfully!</span>');
+                setTimeout(() => {
+                    $('#paymentModal').hide();
+                    loadBillingSummary();
+                    if (typeof invoiceTable !== 'undefined') invoiceTable.draw();
+                }, 1200);
+            }
+        },
+        error: function (xhr) {
+            $(".loadercontainer").hide();
+            let msg = "Failed to record payment.";
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            $('#pay_msg').html(`<span style="color:#ff6b6b;">${msg}</span>`);
+        }
+    });
+});
+
+$(document).on('click', '.btn-view-invoice', function () {
+    var invId = $(this).data('id');
+    viewInvoiceReceipt(invId);
+});
+
+function viewInvoiceReceipt(invId) {
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "get",
+        url: "/billing/invoice/" + invId,
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+            if (res.success) {
+                let inv = res.invoice;
+                $('#rec_inv_num').text(inv.invoice_number);
+                $('#rec_date').text(new Date(inv.issued_at).toLocaleString());
+                let custName = inv.user ? (inv.user.first_name + ' ' + inv.user.last_name) : (inv.notes || 'Guest Customer');
+                $('#rec_cust_name').text(custName);
+
+                $('#rec_items_body').empty();
+                inv.items.forEach(item => {
+                    $('#rec_items_body').append(`
+                        <tr style="border-bottom: 1px dotted #ccc;">
+                            <td style="padding: 5px 0;">${item.description}</td>
+                            <td style="padding: 5px 0; text-align: right;">${item.quantity}</td>
+                            <td style="padding: 5px 0; text-align: right;">Rs.${item.amount}</td>
+                        </tr>
+                    `);
+                });
+
+                $('#rec_subtotal').text(inv.subtotal);
+                $('#rec_discount').text(inv.discount);
+                $('#rec_total').text(inv.total);
+                $('#rec_paid').text(inv.paid_amount);
+                $('#rec_status').text(inv.status);
+
+                $('#printableInvoiceModal').css('display', 'flex');
+            }
+        },
+        error: function () {
+            $(".loadercontainer").hide();
+            alert("Could not load invoice receipt details.");
+        }
+    });
+}
+
+$('#closeReceiptModal').on('click', function () {
+    $('#printableInvoiceModal').hide();
 });

@@ -41,4 +41,9 @@ class GamingSession extends Model
     {
         return $this->belongsTo(Reservation::class, 'reservation_id');
     }
+
+    public function invoice()
+    {
+        return $this->hasOne(Invoice::class, 'gaming_session_id');
+    }
 }

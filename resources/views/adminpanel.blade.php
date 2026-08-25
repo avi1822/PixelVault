@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Billing" id="menu9">
+                        <label for="menu9">
+                            <i class="fa-solid fa-file-invoice-dollar"></i>
+                            <div class="text">Billing & Invoices</div>
+                        </label>
                         <input type="radio" name="slidmenu" value="Sessions" id="menu8">
                         <label for="menu8">
                             <i class="fa-solid fa-stopwatch"></i>
@@ -139,6 +144,44 @@
                                         <th>Ended At</th>
                                         <th>Duration (mins)</th>
                                         <th>Status</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    <div class="billingdata">
+                        <div class="datatcontainer">
+                            <div class="billing-summary-cards" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
+                                <div style="flex: 1; min-width: 160px; background: var(--bgcolor3); border-left: 4px solid var(--secondc); padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">TODAY'S TOTAL SALES</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: var(--secondc);" id="b_stat_sales">Rs.0</div>
+                                </div>
+                                <div style="flex: 1; min-width: 160px; background: var(--bgcolor3); border-left: 4px solid #51cf66; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">TODAY'S PAID AMOUNT</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #51cf66;" id="b_stat_paid">Rs.0</div>
+                                </div>
+                                <div style="flex: 1; min-width: 160px; background: var(--bgcolor3); border-left: 4px solid #ff6b6b; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">TODAY'S PENDING BALANCE</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #ff6b6b;" id="b_stat_pending">Rs.0</div>
+                                </div>
+                                <div style="flex: 1; min-width: 160px; background: var(--bgcolor3); border-left: 4px solid #339af0; padding: 12px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">TOTAL INVOICES</div>
+                                    <div style="font-size: 1.5rem; font-weight: bold; color: #339af0;" id="b_stat_count">0</div>
+                                </div>
+                            </div>
+                            <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-file-invoice"></i> Invoices & Payments</h3>
+                            <table id="invoiceTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>Invoice #</th>
+                                        <th>Customer</th>
+                                        <th>Subtotal</th>
+                                        <th>Total</th>
+                                        <th>Paid</th>
+                                        <th>Status</th>
+                                        <th>Issued At</th>
+                                        <th>Action</th>
                                     </tr>
                                 </thead>
                                 <tbody>
@@ -476,30 +519,93 @@
         </div>
     </div>
 
-    <!-- Walk-in Session Modal -->
-    <div id="walkInModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
+    <!-- Record Payment Modal -->
+    <div id="paymentModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
         <div style="background: var(--bgcolor2); border: 1px solid var(--secondc); padding: 25px; border-radius: 12px; width: 90%; max-width: 420px; color: #fff;">
             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
-                <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-person-walking"></i> Start Walk-in Session</h3>
-                <button id="closeWalkInModal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+                <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-cash-register"></i> Record Payment</h3>
+                <button id="closePaymentModal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
             </div>
+            <input type="hidden" id="pay_invoice_id">
             <div style="display: flex; flex-direction: column; gap: 15px;">
-                <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Guest / Customer Name:</label>
-                    <input type="text" id="walkin_guest_name" placeholder="e.g. Rahul Sharma" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                <div style="font-size: 0.95rem;">
+                    <strong>Invoice #:</strong> <span id="pay_inv_num">--</span><br>
+                    <strong>Total Amount:</strong> Rs.<span id="pay_total_amt">0</span><br>
+                    <strong>Remaining Balance:</strong> <span style="color: #ff6b6b; font-weight: bold;">Rs.<span id="pay_rem_amt">0</span></span>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Select Station *:</label>
-                    <select id="walkin_station_select" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Payment Amount (Rs.) *:</label>
+                    <input type="number" id="pay_amount" min="1" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Payment Method *:</label>
+                    <select id="pay_method" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                        <option value="CASH">💵 CASH</option>
+                        <option value="UPI">📱 UPI / QR</option>
+                        <option value="CARD">💳 CARD</option>
                     </select>
                 </div>
                 <div>
-                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Select Package *:</label>
-                    <select id="walkin_package_select" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
-                    </select>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Transaction Ref / Notes (Optional):</label>
+                    <input type="text" id="pay_ref" placeholder="e.g. UPI Ref #987654" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
                 </div>
-                <button id="btnSubmitWalkIn" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Start Session Now</button>
-                <div id="walkin_msg" style="font-size: 0.9rem; text-align: center;"></div>
+                <button id="btnSubmitPayment" style="background: #51cf66; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 10px;">Confirm & Record Payment</button>
+                <div id="pay_msg" style="font-size: 0.9rem; text-align: center;"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Printable Invoice Receipt Modal -->
+    <div id="printableInvoiceModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.85); z-index: 10000; justify-content: center; align-items: center; overflow-y: auto; padding: 20px;">
+        <div style="background: #fff; color: #000; padding: 30px; border-radius: 8px; width: 100%; max-width: 480px; font-family: 'Courier New', Courier, monospace;" id="printableReceiptArea">
+            <div style="text-align: center; border-bottom: 2px dashed #000; padding-bottom: 15px; margin-bottom: 15px;">
+                <h2 style="margin: 0;">PIXELVAULT</h2>
+                <div style="font-size: 0.9rem;">PS5 Gaming Lounge & Arena</div>
+                <div style="font-size: 0.8rem; color: #555;">Email: pixelvault1011@gmail.com | Tel: +91 9321495527</div>
+            </div>
+            <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 10px;">
+                <span><strong>Invoice:</strong> <span id="rec_inv_num">--</span></span>
+                <span><strong>Date:</strong> <span id="rec_date">--</span></span>
+            </div>
+            <div style="font-size: 0.85rem; margin-bottom: 15px; border-bottom: 1px solid #ccc; padding-bottom: 10px;">
+                <strong>Customer:</strong> <span id="rec_cust_name">--</span>
+            </div>
+            <table style="width: 100%; border-collapse: collapse; font-size: 0.85rem; margin-bottom: 15px;">
+                <thead>
+                    <tr style="border-bottom: 1px solid #000; text-align: left;">
+                        <th style="padding: 5px 0;">Item Description</th>
+                        <th style="padding: 5px 0; text-align: right;">Qty</th>
+                        <th style="padding: 5px 0; text-align: right;">Amount</th>
+                    </tr>
+                </thead>
+                <tbody id="rec_items_body">
+                </tbody>
+            </table>
+            <div style="border-top: 1px solid #000; padding-top: 10px; font-size: 0.9rem; margin-bottom: 15px;">
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Subtotal:</span>
+                    <span>Rs.<span id="rec_subtotal">0</span></span>
+                </div>
+                <div style="display: flex; justify-content: space-between;">
+                    <span>Discount:</span>
+                    <span>Rs.<span id="rec_discount">0</span></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-weight: bold; font-size: 1.1rem; margin-top: 5px;">
+                    <span>TOTAL:</span>
+                    <span>Rs.<span id="rec_total">0</span></span>
+                </div>
+                <div style="display: flex; justify-content: space-between; color: #2b8a3e; margin-top: 5px;">
+                    <span>Paid Amount:</span>
+                    <span>Rs.<span id="rec_paid">0</span></span>
+                </div>
+            </div>
+            <div style="text-align: center; border-top: 2px dashed #000; padding-top: 15px; font-size: 0.85rem;">
+                <div>Payment Status: <strong id="rec_status">--</strong></div>
+                <div style="margin-top: 5px; color: #555;">Thank you for gaming at PixelVault!</div>
+            </div>
+            <div style="display: flex; gap: 10px; margin-top: 20px; text-align: center;" class="no-print">
+                <button onclick="window.print()" style="flex: 1; padding: 10px; background: #339af0; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">🖨 Print Invoice</button>
+                <button id="closeReceiptModal" style="flex: 1; padding: 10px; background: #495057; color: #fff; border: none; border-radius: 4px; font-weight: bold; cursor: pointer;">Close</button>
             </div>
         </div>
     </div>
