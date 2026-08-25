@@ -59,6 +59,9 @@
             <div class="wall">
                 <div class="upperlayer"></div>
                 <div class="wallimg"></div>
+                <div class="lineart" style="display: none !important;">
+                    <div class="line1"></div>
+                </div>
                 <div class="container">
                     <div class="subcontainer">
                         <div class="text">
@@ -78,6 +81,17 @@
                             </div>
                         </div>
                     </div>
+                    <div class="subcontainer2">
+                        <div class="target" id="target">
+                            <div class="circle"></div>
+                        </div>
+                        <div class="img"></div>
+                        <div class="back">
+                            <div class="box1 box"></div>
+                            <div class="box2 box"></div>
+                            <div class="box3 box"></div>
+                            <div class="box4 box"></div>
+                        </div>
                     </div>
                 </div>
             </div>
