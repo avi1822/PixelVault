@@ -145,7 +145,7 @@ class AnalyticsService
             $playedMins = (int) ($sessionStats[$st->cid] ?? 0);
             $sessCount = (int) ($sessionCounts[$st->cid] ?? 0);
             $utilizationPct = min(100.0, round(($playedMins / $totalOperatingMinutesPerStation) * 100, 1));
-            $label = ($st->cid <= 5) ? "PS5 Lounge #{$st.cid}" : "PC Arena #{$st.cid}";
+            $label = ($st->cid <= 5) ? 'PS5 Lounge #' . $st->cid : 'PC Arena #' . $st->cid;
 
             $result[] = [
                 'station_id' => $st->cid,
