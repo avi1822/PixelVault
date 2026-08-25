@@ -155,6 +155,17 @@ class BillingController extends Controller
                 'status' => $newStatus
             ]);
 
+            // If invoice is fully PAID and linked to a PENDING membership purchase, activate membership now
+            if ($newStatus === 'PAID') {
+                $memItem = $invoice->items()->where('item_type', 'MEMBERSHIP')->first();
+                if ($memItem) {
+                    \App\Models\Membership::where('user_id', $invoice->user_id)
+                        ->where('status', 'PENDING')
+                        ->where('membership_plan_id', $memItem->reference_id)
+                        ->update(['status' => 'ACTIVE']);
+                }
+            }
+
             return response()->json([
                 'success' => true,
                 'message' => 'Payment of Rs.' . $paymentAmount . ' recorded successfully for ' . $invoice->invoice_number,

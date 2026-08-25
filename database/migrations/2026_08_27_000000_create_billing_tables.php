@@ -39,7 +39,7 @@ return new class extends Migration
         Schema::create('invoice_items', function (Blueprint $table) {
             $table->id();
             $table->unsignedBigInteger('invoice_id');
-            $table->string('item_type')->default('GAMING'); // GAMING, OTHER
+            $table->string('item_type')->default('GAMING'); // GAMING, FOOD, MEMBERSHIP, OTHER
             $table->string('description');
             $table->integer('quantity')->default(1);
             $table->integer('unit_price')->default(0);

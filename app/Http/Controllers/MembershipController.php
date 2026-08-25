@@ -81,7 +81,7 @@ class MembershipController extends Controller
 
             InvoiceItem::create([
                 'invoice_id' => $invoice->id,
-                'item_type' => 'OTHER',
+                'item_type' => 'MEMBERSHIP',
                 'description' => $plan->name . ' Membership Plan (' . $plan->duration_days . ' Days Pass)',
                 'quantity' => 1,
                 'unit_price' => $plan->price,
@@ -99,7 +99,7 @@ class MembershipController extends Controller
                 'membership_plan_id' => $plan->id,
                 'started_at' => $now,
                 'expires_at' => $expiresAt,
-                'status' => 'ACTIVE',
+                'status' => 'PENDING',
                 'gaming_hours_allocated' => $plan->gaming_hours,
                 'gaming_minutes_remaining' => $plan->gaming_hours * 60,
                 'discount_percent' => $plan->gaming_discount_percent,
