@@ -41,7 +41,32 @@ class BillingController extends Controller
             $subtotal = (int) $session->base_amount;
             $discount = 0;
             $tax = 0;
-            $total = $subtotal - $discount + $tax;
+
+            // Check if user has an ACTIVE membership for discount & hours deduction
+            if ($session->user_id) {
+                $membership = \App\Models\Membership::where('user_id', $session->user_id)
+                    ->where('status', 'ACTIVE')
+                    ->where('expires_at', '>=', now())
+                    ->lockForUpdate()
+                    ->first();
+
+                if ($membership) {
+                    // Apply membership percentage discount
+                    if ($membership->discount_percent > 0) {
+                        $discount = (int) round(($subtotal * $membership->discount_percent) / 100);
+                    }
+
+                    // Option A: Deduct actual session duration minutes from membership balance safely
+                    $sessionMinutes = (int) ($session->duration_minutes ?? 60);
+                    if ($membership->gaming_minutes_remaining > 0) {
+                        $minutesToDeduct = min($membership->gaming_minutes_remaining, $sessionMinutes);
+                        $newRemaining = max(0, $membership->gaming_minutes_remaining - $minutesToDeduct);
+                        $membership->update(['gaming_minutes_remaining' => $newRemaining]);
+                    }
+                }
+            }
+
+            $total = max(0, $subtotal - $discount + $tax);
 
             $invoice = Invoice::create([
                 'invoice_number' => $invNum,

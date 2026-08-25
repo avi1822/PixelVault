@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Memberships" id="menu10">
+                        <label for="menu10">
+                            <i class="fa-solid fa-id-card"></i>
+                            <div class="text">Memberships</div>
+                        </label>
                         <input type="radio" name="slidmenu" value="Billing" id="menu9">
                         <label for="menu9">
                             <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -182,6 +187,27 @@
                                         <th>Status</th>
                                         <th>Issued At</th>
                                         <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    <div class="membershipsdata">
+                        <div class="datatcontainer">
+                            <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-id-card"></i> Customer Memberships</h3>
+                            <table id="membershipTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Customer Name</th>
+                                        <th>Plan</th>
+                                        <th>Gaming Hours Left</th>
+                                        <th>Discount %</th>
+                                        <th>Price</th>
+                                        <th>Start Date</th>
+                                        <th>Expiry Date</th>
+                                        <th>Status</th>
                                     </tr>
                                 </thead>
                                 <tbody>

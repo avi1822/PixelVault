@@ -387,6 +387,7 @@ $(document).ready(function () {
         $(".subcontainer2 .gamesdata").hide();
         $(".subcontainer2 .settingsdata").hide();
         $(".subcontainer2 .billsdata").hide();
+        $(".subcontainer2 .membershipdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption.toString().toLowerCase() == "home") {
             $(".adminarea .container nav .hiuser").show();
@@ -395,6 +396,9 @@ $(document).ready(function () {
         }
         if (caption.toString().toLowerCase() == "bills") {
             loadUserInvoices();
+        } else if (caption.toString().toLowerCase() == "membership") {
+            loadUserMembership();
+            loadMembershipPlans();
         }
     });
     $(".settingsdata input[type='radio']").on("change", function () {
@@ -583,3 +587,88 @@ function loadUserInvoices() {
         }
     });
 }
+
+function loadUserMembership() {
+    $.ajax({
+        type: "get",
+        url: "/membership/mymembership",
+        dataType: "json",
+        success: function (res) {
+            if (res.active) {
+                let m = res.active;
+                let hrs = Math.floor(m.gaming_minutes_remaining / 60);
+                let mins = m.gaming_minutes_remaining % 60;
+
+                $('#mem_plan_name').text(m.plan ? m.plan.name : 'VIP Member');
+                $('#mem_hours_left').text(`${hrs}h ${mins}m`);
+                $('#mem_discount_pct').text(`${m.discount_percent}% OFF`);
+                $('#mem_expires_at').text(new Date(m.expires_at).toLocaleDateString());
+                $('#mem_badge_status').text(m.status).css({ background: '#51cf66', color: '#000' });
+            } else {
+                $('#mem_plan_name').text('NO ACTIVE PLAN');
+                $('#mem_hours_left').text('0h 0m');
+                $('#mem_discount_pct').text('0%');
+                $('#mem_expires_at').text('N/A');
+                $('#mem_badge_status').text('NO MEMBERSHIP').css({ background: '#ff6b6b', color: '#fff' });
+            }
+        }
+    });
+}
+
+function loadMembershipPlans() {
+    $.ajax({
+        type: "get",
+        url: "/membership/plans",
+        dataType: "json",
+        success: function (res) {
+            $('#membershipPlansGrid').empty();
+            res.forEach(plan => {
+                let borderCol = (plan.name === 'PLATINUM') ? '#e599f7' : ((plan.name === 'GOLD') ? '#fcc419' : '#adb5bd');
+                $('#membershipPlansGrid').append(`
+                    <div style="background: var(--bgcolor3); border: 1px solid ${borderCol}; border-radius: 10px; padding: 20px; display: flex; flex-direction: column; justify-content: space-between; text-align: center;">
+                        <div>
+                            <div style="font-size: 0.85rem; color: ${borderCol}; font-weight: bold; letter-spacing: 1px;">${plan.name} PLAN</div>
+                            <div style="font-size: 2rem; font-weight: bold; color: #fff; margin: 10px 0;">Rs.${plan.price}</div>
+                            <div style="font-size: 0.85rem; color: #aaa; margin-bottom: 15px;">${plan.description || ''}</div>
+                            <ul style="list-style: none; padding: 0; margin: 0 0 20px 0; text-align: left; font-size: 0.9rem; color: #ddd; display: flex; flex-direction: column; gap: 8px;">
+                                <li><i class="fa-solid fa-check" style="color:#51cf66;"></i> <strong>${plan.gaming_hours} Gaming Hours</strong></li>
+                                <li><i class="fa-solid fa-check" style="color:#51cf66;"></i> <strong>${plan.gaming_discount_percent}% Discount</strong> on all gaming</li>
+                                <li><i class="fa-solid fa-check" style="color:#51cf66;"></i> <strong>${plan.duration_days} Days</strong> Validity</li>
+                            </ul>
+                        </div>
+                        <button class="btn-buy-plan" data-plan-id="${plan.id}" data-plan-name="${plan.name}" style="background: ${borderCol}; color: #000; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer;">
+                            👑 Subscribe Now
+                        </button>
+                    </div>
+                `);
+            });
+        }
+    });
+}
+
+$(document).on('click', '.btn-buy-plan', function () {
+    var planId = $(this).data('plan-id');
+    var planName = $(this).data('plan-name');
+
+    if (confirm(`Subscribe to ${planName} Membership Plan?`)) {
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "POST",
+            url: "/membership/purchase",
+            data: { plan_id: planId },
+            dataType: "json",
+            success: function (res) {
+                $(".loadercontainer").hide();
+                alert(res.message);
+                loadUserMembership();
+                loadUserInvoices();
+            },
+            error: function (xhr) {
+                $(".loadercontainer").hide();
+                let msg = "Failed to purchase plan.";
+                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+                alert(msg);
+            }
+        });
+    }
+});

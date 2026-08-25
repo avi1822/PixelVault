@@ -100,7 +100,13 @@ Route::get('billing/anydata', [BillingController::class, 'anyData'])->middleware
 Route::get('billing/stats', [BillingController::class, 'summaryStats'])->middleware(['auth', 'isAdmin']);
 Route::post('billing/payment', [BillingController::class, 'recordPayment'])->middleware(['auth', 'isAdmin']);
 Route::get('billing/invoice/{id}', [BillingController::class, 'viewInvoice'])->middleware('auth');
-Route::get('billing/userinvoices', [BillingController::class, 'userInvoices'])->middleware('auth');
+use App\Http\Controllers\MembershipController;
+
+Route::get('membership/plans', [MembershipController::class, 'getPlans']);
+Route::post('membership/purchase', [MembershipController::class, 'purchasePlan'])->middleware('auth');
+Route::get('membership/mymembership', [MembershipController::class, 'myMembership'])->middleware('auth');
+Route::get('membership/anydata', [MembershipController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
+Route::post('membership/storeplan', [MembershipController::class, 'storePlan'])->middleware(['auth', 'isAdmin']);
 
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 

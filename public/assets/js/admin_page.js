@@ -227,6 +227,7 @@ $(document).ready(function () {
         $(".subcontainer2 .visitorsdata").hide();
         $(".subcontainer2 .sessionsdata").hide();
         $(".subcontainer2 .billingdata").hide();
+        $(".subcontainer2 .membershipsdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption === "Visitors") {
             populateVisitorGames();
@@ -237,6 +238,8 @@ $(document).ready(function () {
         } else if (caption === "Billing") {
             loadBillingSummary();
             if (typeof invoiceTable !== 'undefined') invoiceTable.draw();
+        } else if (caption === "Memberships") {
+            if (typeof membershipTable !== 'undefined') membershipTable.draw();
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -618,6 +621,32 @@ $(document).ready(function () {
                     let btnPay = (row.status !== 'PAID' && row.status !== 'CANCELLED') ? 
                         `<button class="btn-open-payment" data-id="${data}" data-num="${row.invoice_number}" data-total="${row.total}" data-paid="${row.paid_amount}" style="background:#51cf66; color:#000; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:5px;">💵 Pay</button>` : '';
                     return `${btnPay}<button class="btn-view-invoice" data-id="${data}" style="background:#339af0; color:#fff; border:none; padding:4px 8px; border-radius:4px; font-weight:bold; cursor:pointer;">🧾 View</button>`;
+                }
+            }
+        ]
+    });
+
+    var membershipTable = $('#membershipTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: "/membership/anydata",
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'customer_name', name: 'customer_name' },
+            { data: 'plan_name', name: 'plan_name' },
+            { data: 'gaming_minutes_remaining', name: 'gaming_minutes_remaining' },
+            { data: 'discount_percent', name: 'discount_percent' },
+            {
+                data: 'purchase_price',
+                render: function (data) { return 'Rs.' + data; }
+            },
+            { data: 'started_at', name: 'started_at' },
+            { data: 'expires_at', name: 'expires_at' },
+            {
+                data: 'status',
+                render: function (data) {
+                    let col = (data === 'ACTIVE') ? '#51cf66' : '#ff6b6b';
+                    return `<span style="color:${col}; font-weight:bold;">${data}</span>`;
                 }
             }
         ]

@@ -58,6 +58,11 @@
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Membership" id="menu8">
+                        <label for="menu8">
+                            <i class="fa-solid fa-crown"></i>
+                            <div class="text">Membership</div>
+                        </label>
                         <input type="radio" name="slidmenu" value="Bills" id="menu7">
                         <label for="menu7">
                             <i class="fa-solid fa-file-invoice-dollar"></i>
@@ -278,6 +283,38 @@
                                         </div>
                                     </div>
                                 </div>
+                            </div>
+                        </div>
+                    <div class="membershipdata">
+                        <div class="datatcontainer">
+                            <!-- Active Membership Status Card -->
+                            <div id="activeMembershipCard" style="background: var(--bgcolor3); border: 2px solid var(--secondc); border-radius: 12px; padding: 20px; margin-bottom: 25px; color: #fff;">
+                                <div style="display: flex; justify-content: space-between; align-items: center;">
+                                    <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-crown"></i> Active VIP Membership</h3>
+                                    <span id="mem_badge_status" style="background: #51cf66; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;">ACTIVE</span>
+                                </div>
+                                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(150px, 1fr)); gap: 15px; margin-top: 15px;">
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: #aaa;">Current Plan</div>
+                                        <div style="font-size: 1.3rem; font-weight: bold; color: #fff;" id="mem_plan_name">--</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: #aaa;">Gaming Hours Left</div>
+                                        <div style="font-size: 1.3rem; font-weight: bold; color: #339af0;" id="mem_hours_left">--</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: #aaa;">Gaming Discount</div>
+                                        <div style="font-size: 1.3rem; font-weight: bold; color: #51cf66;" id="mem_discount_pct">--</div>
+                                    </div>
+                                    <div>
+                                        <div style="font-size: 0.8rem; color: #aaa;">Valid Until</div>
+                                        <div style="font-size: 1.1rem; font-weight: bold; color: #fcc419;" id="mem_expires_at">--</div>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-gem"></i> Available VIP Membership Plans</h3>
+                            <div id="membershipPlansGrid" style="display: grid; grid-template-columns: repeat(auto-fit, minmax(240px, 1fr)); gap: 20px; margin-bottom: 30px;">
                             </div>
                         </div>
                     </div>
