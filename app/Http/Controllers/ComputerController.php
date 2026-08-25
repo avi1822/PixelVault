@@ -124,8 +124,12 @@ class ComputerController extends Controller
                 );
             }
         ])->select("cid", "spec1", "spec2", "spec3", "spec4", "spec5", "spec6", "spec7")-> where('cid',$cid)->get();
-        foreach($computer[0]["games"] as $game){
-            $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+        if (isset($computer[0])) {
+            foreach($computer[0]["games"] as $game){
+                if (Storage::disk('local')->exists("gameimg/".$game->path)) {
+                    $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+                }
+            }
         }
         return $computer;
     }

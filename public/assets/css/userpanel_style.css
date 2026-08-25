@@ -1,12 +1,12 @@
 :root {
-    --bgcolor: rgb(23, 26, 30);
-    --bgcolorA: rgba(23, 26, 30, 0.5);
-    --bgcolor2: rgb(51, 48, 59);
-    --bgcolor3: rgb(38, 41, 46);
-    --bgcolor3A: rgba(38, 41, 46, 0.3);
-    --secondc: rgb(254, 206, 122);
-    --secondcA: rgba(254, 206, 122, 0.9);
-    --secondcA2: rgba(254, 206, 122, 0.2);
+    --bgcolor: rgb(15, 12, 26);
+    --bgcolorA: rgba(15, 12, 26, 0.5);
+    --bgcolor2: rgb(26, 20, 44);
+    --bgcolor3: rgb(38, 28, 58);
+    --bgcolor3A: rgba(38, 28, 58, 0.3);
+    --secondc: rgb(168, 85, 247);
+    --secondcA: rgba(168, 85, 247, 0.9);
+    --secondcA2: rgba(168, 85, 247, 0.2);
 }
 
 ::-webkit-scrollbar {
@@ -168,7 +168,7 @@ body {
 }
 
 #mainsubcontainer .ul input[type="radio"]:checked+label {
-    background-color: rgba(254, 206, 122, 0.8) !important;
+    background-color: rgba(168, 85, 247, 0.8) !important;
 }
 
 #mainsubcontainer .ul input[type="radio"]:checked+label .text {
@@ -666,7 +666,7 @@ th {
 }
 
 .adminarea .subcontainer2 .gamesdata .datatcontainer .btnline input[type="radio"]:checked+label {
-    background-color: rgba(254, 206, 122, 0.8) !important;
+    background-color: rgba(168, 85, 247, 0.8) !important;
     opacity: 1;
     color: var(--bgcolor);
 }
@@ -1157,7 +1157,7 @@ th {
     overflow: hidden;
 }
 .adminarea .subcontainer2 .settingsdata .propiclist input[type="radio"]:checked+label {
-    border:1px solid rgba(254, 206, 122, 0.8) !important;
+    border:1px solid rgba(168, 85, 247, 0.8) !important;
 }
 .adminarea .subcontainer2 .settingsdata .propiclist .propiccard img{
     width: 100%;

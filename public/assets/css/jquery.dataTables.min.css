@@ -588,7 +588,7 @@ table.dataTable td {
 .dataTables_wrapper .dataTables_paginate .paginate_button.current:hover {
     color: #333;
     border: 1px solid rgba(0, 0, 0, 0.3);
-    background-color: rgba(254, 206, 122, 0.9);
+    background-color: rgba(168, 85, 247, 0.9);
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button.disabled,
@@ -604,12 +604,12 @@ table.dataTable td {
 .dataTables_wrapper .dataTables_paginate .paginate_button:hover {
     color: black;
     border: 1px solid #111;
-    background-color: rgba(254, 206, 122, 0.7);
+    background-color: rgba(168, 85, 247, 0.7);
 }
 
 .dataTables_wrapper .dataTables_paginate .paginate_button:active {
     outline: none;
-    background-color: rgba(254, 206, 122, 0.9);
+    background-color: rgba(168, 85, 247, 0.9);
 }
 
 .dataTables_wrapper .dataTables_paginate .ellipsis {

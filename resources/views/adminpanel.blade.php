@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Document</title>
+    <title>PixelVault</title>
     <link rel="stylesheet" href="{{url('assets/css/jquery.dataTables.min.css')}}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link rel="stylesheet" href="{{url('assets/css/adminpanel_style.css')}}">
@@ -21,7 +21,7 @@
         <div class="container">
             <nav>
                 <div class="logo"><i class="fa-solid fa-bars"></i>
-                    <div class="text"><span>N</span>EXTGEN</div>
+                    <div class="text"><span>P</span>IXELVAULT</div>
                 </div>
                 <div class="logout"><a href="{{ route("logout") }}" id="logoutbtn">Logout</a></div>
             </nav>
@@ -57,6 +57,11 @@
                         <label for="menu5">
                             <i class="fa-solid fa-gear"></i>
                             <div class="text">Settings</div>
+                        </label>
+                        <input type="radio" name="slidmenu" value="Visitors" id="menu7">
+                        <label for="menu7">
+                            <i class="fa-solid fa-clipboard-user"></i>
+                            <div class="text">Daily Visitors</div>
                         </label>
                     </div>
                 </div>
@@ -268,6 +273,122 @@
                                     </div>
                                 </div>
                             </div>
+                        </div>
+                    </div>
+                    <div class="visitorsdata">
+                        <div class="datatcontainer">
+                            <div class="visitors-header-bar">
+                                <h2 style="color: var(--secondc); margin:0; font-size: 1.4rem;"><i class="fa-solid fa-chart-pie"></i> Daily Visitor Logger & Analytics</h2>
+                                <div class="visitors-filter-group">
+                                    <label style="color:#aaa; font-size:0.85rem;">Filter By:</label>
+                                    <input type="date" id="filter_date" title="Filter by Date">
+                                    <input type="month" id="filter_month" title="Filter by Month">
+                                    <input type="number" id="filter_year" placeholder="Year (2026)" style="width:110px;">
+                                    <select id="filter_zone">
+                                        <option value="">All Zones</option>
+                                        <option value="Upper Floor (PS5 Lounge)">🎮 Upper Floor (PS5)</option>
+                                        <option value="Lower Floor (PC Arena)">💻 Lower Floor (PC)</option>
+                                    </select>
+                                    <button id="resetVisitorFiltersBtn" style="background:#444; color:#fff; border:none; padding:8px 14px; border-radius:6px; cursor:pointer;">Reset</button>
+                                </div>
+                            </div>
+
+                            <div class="visitor-stat-grid">
+                                <div class="v-stat-card">
+                                    <div class="v-num" id="v_stat_total">0</div>
+                                    <div class="v-lbl">Total Visitors</div>
+                                </div>
+                                <div class="v-stat-card">
+                                    <div class="v-num" id="v_stat_hours">0</div>
+                                    <div class="v-lbl">Total Hours Played</div>
+                                </div>
+                                <div class="v-stat-card">
+                                    <div class="v-num" id="v_stat_ps5">0</div>
+                                    <div class="v-lbl">Upper Floor (PS5)</div>
+                                </div>
+                                <div class="v-stat-card">
+                                    <div class="v-num" id="v_stat_pc">0</div>
+                                    <div class="v-lbl">Lower Floor (PC)</div>
+                                </div>
+                                <div class="v-stat-card">
+                                    <div class="v-num" id="v_stat_topgame" style="font-size:1.1rem; color:#fff;">N/A</div>
+                                    <div class="v-lbl">Top Game Played</div>
+                                </div>
+                            </div>
+
+                            <div class="visitor-form-container">
+                                <div class="visitor-form-title"><i class="fa-solid fa-plus-circle"></i> Log Daily Visitor Entry</div>
+                                <div class="visitor-form-grid">
+                                    <div class="v-form-group">
+                                        <label>Visitor Name *</label>
+                                        <input type="text" id="v_name" placeholder="e.g. John Doe">
+                                    </div>
+                                    <div class="v-form-group">
+                                        <label>Phone Number</label>
+                                        <input type="text" id="v_phone" placeholder="e.g. 9876543210">
+                                    </div>
+                                    <div class="v-form-group">
+                                        <label>Gaming Zone / Floor *</label>
+                                        <select id="v_zone">
+                                            <option value="Upper Floor (PS5 Lounge)">🎮 Upper Floor - PS5 Gaming Lounge</option>
+                                            <option value="Lower Floor (PC Arena)">💻 Lower Floor - PC Gaming Arena</option>
+                                        </select>
+                                    </div>
+                                    <div class="v-form-group">
+                                        <label>Hours Played *</label>
+                                        <select id="v_hours">
+                                            <option value="1">1 Hour</option>
+                                            <option value="2">2 Hours</option>
+                                            <option value="3">3 Hours</option>
+                                            <option value="4">4 Hours</option>
+                                            <option value="5">5+ Hours</option>
+                                        </select>
+                                    </div>
+                                    <div class="v-form-group">
+                                        <label>Game Played *</label>
+                                        <select id="v_game">
+                                            <!-- Dynamically populated -->
+                                        </select>
+                                    </div>
+                                    <div class="v-form-group">
+                                        <label>Additional Food Item Purchased</label>
+                                        <select id="v_food">
+                                            <option value="None">None</option>
+                                            <option value="Gourmet Burger & Soft Drink">🍔 Gourmet Burger & Soft Drink</option>
+                                            <option value="Pizza Slice & Fries">🍕 Pizza Slice & Fries</option>
+                                            <option value="Energy Drink (Red Bull)">⚡ Energy Drink (Red Bull)</option>
+                                            <option value="Energy Drink (Monster)">⚡ Energy Drink (Monster)</option>
+                                            <option value="Snacks & Chips">🍿 Snacks & Chips</option>
+                                            <option value="Cold Coffee">☕ Cold Coffee</option>
+                                            <option value="Combo Meal">🍱 Combo Meal</option>
+                                        </select>
+                                    </div>
+                                    <div class="v-form-group">
+                                        <label>Entry Date *</label>
+                                        <input type="date" id="v_date">
+                                    </div>
+                                </div>
+                                <button class="save-visitor-btn" id="saveVisitorBtn"><i class="fa-solid fa-check"></i> Save Visitor Entry</button>
+                                <div id="v_form_msg" style="margin-top:10px;"></div>
+                            </div>
+
+                            <table id="visitorTable" class="display" style="width:100%">
+                                <thead>
+                                    <tr>
+                                        <th>Id</th>
+                                        <th>Visitor Name</th>
+                                        <th>Phone</th>
+                                        <th>Date</th>
+                                        <th>Hours Played</th>
+                                        <th>Game Played</th>
+                                        <th>Food Item</th>
+                                        <th>Floor / Zone</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
                         </div>
                     </div>
                 </div>

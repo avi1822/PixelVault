@@ -17,19 +17,46 @@ class ReservationController extends Controller
 
     public function store(Request $request)
     {
-
         $uid  = Auth::user()->id;
         $name = (Auth::user()->first_name) . " " . (Auth::user()->last_name);
+        $date = $request->date;
+        $pcid = $request->pc;
+        $startTime = (int) $request->start_time;
+
+        $package = Package::where('package_id', $request->packid)->first();
+        $pkgTime = $package ? $package->package_time : 1;
+
+        // Check for conflicting reservations for this station & date
+        $existingReservations = Reservation::where('date', $date)
+            ->where('computer_id', $pcid)
+            ->get();
+
+        foreach ($existingReservations as $res) {
+            $resPkg = Package::where('package_id', $res->package_id)->first();
+            $resDuration = $resPkg ? $resPkg->package_time : 1;
+            $resStart = (int) $res->start_time;
+            $resEnd = $resStart + $resDuration;
+
+            $newEnd = $startTime + $pkgTime;
+
+            // Check if time intervals overlap
+            if (max($resStart, $startTime) < min($resEnd, $newEnd)) {
+                return response()->json([
+                    'status' => 'error',
+                    'message' => 'Station PC/PS5 #' . $pcid . ' is ALREADY BOOKED for this time slot (' . $res->time . ')! Please select a different time slot or station.'
+                ], 422);
+            }
+        }
 
         $reservation = new Reservation();
 
         $reservation->user_id = $uid;
         $reservation->user_name = $name;
-        $reservation->date = $request->date;
+        $reservation->date = $date;
         $reservation->time = $request->time;
-        $reservation->computer_id = $request->pc;
+        $reservation->computer_id = $pcid;
         $reservation->package_id = $request->packid;
-        $reservation->start_time = $request->start_time;
+        $reservation->start_time = $startTime;
 
         $reservation->save();
 

@@ -167,7 +167,12 @@ $(document).ready(function () {
         $(".subcontainer2 .packagesdata").hide();
         $(".subcontainer2 .gamesdata").hide();
         $(".subcontainer2 .settingsdata").hide();
+        $(".subcontainer2 .visitorsdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
+        if (caption === "Visitors") {
+            populateVisitorGames();
+            loadVisitorAnalytics();
+        }
     });
     $(".computersdata .con2 .exp").on("click", function () {
         $(".computersdata .con2 .pcgames").toggleClass("maxpanel");
@@ -539,4 +544,141 @@ $(document).ready(function () {
             }
         });
     });
+
+    if ($('#v_date').length) {
+        $('#v_date').val(new Date().toISOString().split('T')[0]);
+    }
+
+    var visitorTable = $('#visitorTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: {
+            url: "/visitor/anydata",
+            data: function (d) {
+                d.filter_date = $('#filter_date').val();
+                d.filter_month = $('#filter_month').val();
+                d.filter_year = $('#filter_year').val();
+                d.filter_zone = $('#filter_zone').val();
+            }
+        },
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'visitor_name', name: 'visitor_name' },
+            { data: 'phone_number', name: 'phone_number' },
+            { data: 'entry_date', name: 'entry_date' },
+            { data: 'hours_played', name: 'hours_played' },
+            { data: 'game_played', name: 'game_played' },
+            { data: 'food_item', name: 'food_item' },
+            { data: 'zone_location', name: 'zone_location' },
+            {
+                data: 'id',
+                render: function (data) {
+                    return `<button class="del-visitor-btn" data-id="${data}" style="background:#d9534f; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>`;
+                }
+            }
+        ]
+    });
+
+    $('#filter_date, #filter_month, #filter_year, #filter_zone').on('change keyup', function () {
+        visitorTable.draw();
+        loadVisitorAnalytics();
+    });
+
+    $('#resetVisitorFiltersBtn').on('click', function () {
+        $('#filter_date').val('');
+        $('#filter_month').val('');
+        $('#filter_year').val('');
+        $('#filter_zone').val('');
+        visitorTable.draw();
+        loadVisitorAnalytics();
+    });
+
+    $('#saveVisitorBtn').on('click', function () {
+        var vName = $('#v_name').val();
+        var vDate = $('#v_date').val();
+        if (!vName || !vDate) {
+            $('#v_form_msg').html('<span style="color:#ff6b6b;">Please fill in Visitor Name and Date!</span>');
+            return;
+        }
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "post",
+            url: "/visitor/store",
+            data: {
+                visitor_name: vName,
+                phone_number: $('#v_phone').val(),
+                zone_location: $('#v_zone').val(),
+                hours_played: $('#v_hours').val(),
+                game_played: $('#v_game').val(),
+                food_item: $('#v_food').val(),
+                entry_date: vDate
+            },
+            dataType: "json",
+            success: function (res) {
+                $(".loadercontainer").hide();
+                if (res.success) {
+                    $('#v_name').val('');
+                    $('#v_phone').val('');
+                    $('#v_form_msg').html('<span style="color:#51cf66;">Visitor entry logged successfully!</span>');
+                    setTimeout(() => $('#v_form_msg').html(''), 3000);
+                    visitorTable.draw();
+                    loadVisitorAnalytics();
+                } else {
+                    $('#v_form_msg').html('<span style="color:#ff6b6b;">Error saving visitor entry.</span>');
+                }
+            }
+        });
+    });
+
+    $('#visitorTable').on('click', '.del-visitor-btn', function () {
+        var id = $(this).data('id');
+        if (confirm("Are you sure you want to delete this visitor entry?")) {
+            $(".loadercontainer").show();
+            $.ajax({
+                type: "post",
+                url: "/visitor/delete",
+                data: { id: id },
+                dataType: "json",
+                success: function () {
+                    $(".loadercontainer").hide();
+                    visitorTable.draw();
+                    loadVisitorAnalytics();
+                }
+            });
+        }
+    });
 });
+
+function populateVisitorGames() {
+    $.ajax({
+        type: "get",
+        url: "/game/view",
+        success: function (response) {
+            $("#v_game").empty();
+            for (var i in response) {
+                $("#v_game").append(`<option value="${response[i].name}">${response[i].name}</option>`);
+            }
+        }
+    });
+}
+
+function loadVisitorAnalytics() {
+    $.ajax({
+        type: "get",
+        url: "/visitor/analytics",
+        data: {
+            filter_date: $("#filter_date").val(),
+            filter_month: $("#filter_month").val(),
+            filter_year: $("#filter_year").val(),
+            filter_zone: $("#filter_zone").val()
+        },
+        dataType: "json",
+        success: function (res) {
+            $("#v_stat_total").text(res.totalVisitors);
+            $("#v_stat_hours").text(res.totalHours);
+            $("#v_stat_ps5").text(res.upperFloor);
+            $("#v_stat_pc").text(res.lowerFloor);
+            $("#v_stat_topgame").text(res.topGame);
+        }
+    });
+}

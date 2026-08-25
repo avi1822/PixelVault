@@ -3,13 +3,13 @@
 @import url('https://fonts.googleapis.com/css2?family=Bebas+Neue&display=swap');
 
 :root {
-    --bgcolor: rgb(23, 26, 30);
-    --bgcolor2: rgb(51, 48, 59);
-    --bgcolor3: rgb(38, 41, 46);
-    --bgcolor3A: rgba(38, 41, 46, 0.3);
-    --secondc: rgb(254, 206, 122);
-    --secondcA: rgba(254, 206, 122, 0.9);
-    --secondcA2: rgba(254, 206, 122, 0.2);
+    --bgcolor: rgb(15, 12, 26);
+    --bgcolor2: rgb(26, 20, 44);
+    --bgcolor3: rgb(38, 28, 58);
+    --bgcolor3A: rgba(38, 28, 58, 0.3);
+    --secondc: rgb(168, 85, 247);
+    --secondcA: rgba(168, 85, 247, 0.9);
+    --secondcA2: rgba(168, 85, 247, 0.2);
 }
 
 ::-webkit-scrollbar {
@@ -1095,5 +1095,65 @@ button{
     position: absolute;
     top : 200%;
     z-index: 0;
+}
 
+.homearea .aboutus {
+    width: 100%;
+    padding-block: 80px;
+    background-color: var(--bgcolor2);
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+}
+.homearea .aboutus .caption {
+    font-size: 2.5rem;
+    font-weight: 700;
+    color: var(--secondc);
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    margin-bottom: 25px;
+    text-align: center;
+}
+.homearea .aboutus .about-desc {
+    max-width: 900px;
+    font-size: 1.05rem;
+    line-height: 1.8;
+    color: rgba(255, 255, 255, 0.85);
+    text-align: center;
+    margin-bottom: 45px;
+    padding-inline: 20px;
+}
+.homearea .aboutus .about-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fit, minmax(230px, 1fr));
+    gap: 25px;
+    width: 85%;
+    max-width: 1200px;
+}
+.homearea .aboutus .about-card {
+    background-color: var(--bgcolor3);
+    border: 1px solid rgba(168, 85, 247, 0.2);
+    border-radius: 16px;
+    padding: 30px 20px;
+    text-align: center;
+    transition: transform 0.3s ease, border-color 0.3s ease;
+}
+.homearea .aboutus .about-card:hover {
+    transform: translateY(-8px);
+    border-color: var(--secondc);
+}
+.homearea .aboutus .about-card i {
+    font-size: 2.8rem;
+    color: var(--secondc);
+    margin-bottom: 15px;
+}
+.homearea .aboutus .about-card h3 {
+    font-size: 1.25rem;
+    color: #fff;
+    margin-bottom: 10px;
+}
+.homearea .aboutus .about-card p {
+    font-size: 0.92rem;
+    color: rgba(255, 255, 255, 0.7);
+    line-height: 1.5;
 }

@@ -31,18 +31,27 @@ function createHomePc() {
         }
     });
 }
-function cratePc() {
+var currentZone = 'pc';
+function cratePc(zone) {
+    if (!zone) zone = currentZone;
+    currentZone = zone;
     $(".loadercontainer").show();
     $.ajax({
         type: "get",
         url: "/computer/view",
         success: function (response) {
-            for (var i in response) {
+            $(".adminarea .computersdata .pcselector .pclist").html("");
+            let filtered = response;
+            if (zone === 'ps5') {
+                filtered = response.slice(0, 5);
+            }
+            for (var i in filtered) {
+                let labelText = (zone === 'ps5') ? `PS5 - 0${parseInt(i)+1}` : `PC - ${filtered[i].cid}`;
                 $(".adminarea .computersdata .pcselector .pclist").append(`
-                <input type="radio" name="computer" value="${response[i].cid}" id="pc${response[i].cid}" ${(response[i].cid == 1) ? 'checked' : ''}>
-                <label for="pc${response[i].cid}" id="pcl${response[i].cid}" class="pccard">
+                <input type="radio" name="computer" value="${filtered[i].cid}" id="pc${filtered[i].cid}" ${(i == 0) ? 'checked' : ''}>
+                <label for="pc${filtered[i].cid}" id="pcl${filtered[i].cid}" class="pccard">
                                 <div class="pccardimg"></div>
-                                <div class="text">PC - ${response[i].cid}</div>
+                                <div class="text">${labelText}</div>
                 </label>
                 `);
             }
@@ -52,7 +61,9 @@ function cratePc() {
             $('.adminarea .computersdata .pcselector .pclist input[name="computer"]').on("change", function () {
                 displayPcDetails($(this).val());
             });
-            displayPcDetails(1);
+            if (filtered.length > 0) {
+                displayPcDetails(filtered[0].cid);
+            }
             $(".loadercontainer").hide();
         }
     });
@@ -222,22 +233,21 @@ function getResPkgData(pkg, date, pcid) {
 }
 function createTimeSolts(pkgTime, availableTimes, isFullDayAvailable) {
     $(".pcbookarea .container .detail .time .timelist").html("");
-    if (!isFullDayAvailable) {
-        availableTimes.forEach(element => {
-            $(".pcbookarea .container .detail .time .timelist").append(`
-                <input type="radio" name="timeslot" value="${element}" id="tsid${element}">
-                <label for="tsid${element}" class="timecard">${element}:00 - ${element + pkgTime}:00</label>
-             `);
-        });
-    } else {
-        for (let i = 8; i < 20; i++) {
-            if (i + pkgTime > 20) {
-                break;
-            }
+    for (let i = 8; i < 20; i++) {
+        if (i + pkgTime > 20) {
+            break;
+        }
+        let isAvailable = isFullDayAvailable || availableTimes.includes(i);
+        if (isAvailable) {
             $(".pcbookarea .container .detail .time .timelist").append(`
                 <input type="radio" name="timeslot" value="${i}" id="tsid${i}">
-                <label for="tsid${i}" class="timecard">${i}:00 - ${i + pkgTime}:00</label>
-        `);
+                <label for="tsid${i}" class="timecard" style="border: 1px solid #51cf66; color: #51cf66;">🟢 ${i}:00 - ${i + pkgTime}:00</label>
+            `);
+        } else {
+            $(".pcbookarea .container .detail .time .timelist").append(`
+                <input type="radio" name="timeslot" value="${i}" id="tsid${i}" disabled>
+                <label for="tsid${i}" class="timecard" style="border: 1px solid #ff6b6b; color: #ff6b6b; opacity: 0.6; cursor: not-allowed;">🔴 BOOKED (${i}:00 - ${i + pkgTime}:00)</label>
+            `);
         }
     }
 }
@@ -328,6 +338,11 @@ function setUserData() {
     });
 }
 $(document).ready(function () {
+    $.ajaxSetup({
+        headers: {
+            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+        }
+    });
     createProPics();
     createHomePc();
     setEventCalender();
@@ -336,10 +351,16 @@ $(document).ready(function () {
     crategames(1);
     createPackage();
 
-    $.ajaxSetup({
-        headers: {
-            'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
-        }
+    $('#btnZonePC').on('click', function () {
+        $('.zone-btn').css({ background: 'var(--bgcolor3)', color: '#fff', border: '1px solid var(--secondc)' });
+        $(this).css({ background: 'var(--secondc)', color: 'var(--bgcolor)', border: 'none' });
+        cratePc('pc');
+    });
+
+    $('#btnZonePS5').on('click', function () {
+        $('.zone-btn').css({ background: 'var(--bgcolor3)', color: '#fff', border: '1px solid var(--secondc)' });
+        $(this).css({ background: 'var(--secondc)', color: 'var(--bgcolor)', border: 'none' });
+        cratePc('ps5');
     });
     $(".logo").on("click", function () {
         $("#mainsubcontainer").toggleClass("subcontainerwidth");
@@ -467,24 +488,54 @@ $(document).ready(function () {
     });
 
     $("#paynowbtn").on("click", function () {
-        //$(".loadercontainer").show();
         var time = $(".pcbookarea .time input[type='radio']:checked + label").html();
         var packid = $(".pcbookarea .pkg input[type='radio']:checked").val();
         var date = $(".pcbookarea #date").val();
         var pc = $("input[name='computer']:checked").val();
         var startime = $("input[name='timeslot']:checked").val();
-        console.log(time + " " + packid + " " + date + " " + pc + " " + startime);
+
+        if (!date || !packid || !startime) {
+            $("#booking_msg").html('<span style="color: #ff6b6b; font-weight: bold;"><i class="fa-solid fa-circle-exclamation"></i> Please select a Date, Package, and Available Time Slot!</span>');
+            return;
+        }
+
+        $(".loadercontainer").show();
+        $("#booking_msg").html("");
+
         $.ajax({
             type: "post",
             url: "/reservation/store",
-            data: { "time": time, "date": date, "packid": packid, "pc": pc, "start_time": startime },
+            data: { 
+                "_token": $('meta[name="csrf-token"]').attr('content'),
+                "time": time, 
+                "date": date, 
+                "packid": packid, 
+                "pc": pc, 
+                "start_time": startime 
+            },
             dataType: "json",
             success: function (response) {
-                console.log(response);
-                //$(".loadercontainer").hide();
+                $(".loadercontainer").hide();
+                if (response.status === 'ok') {
+                    $("#booking_msg").html('<span style="color: #51cf66; font-weight: bold;"><i class="fa-solid fa-circle-check"></i> Reservation Successful! Your station is booked.</span>');
+                    setTimeout(() => {
+                        $(".computersdata .pc").show();
+                        $(".pcbookarea").hide();
+                        $("#booking_msg").html("");
+                        if (typeof dataTable !== 'undefined') dataTable.draw();
+                        setEventCalender();
+                    }, 2000);
+                }
+            },
+            error: function (xhr) {
+                $(".loadercontainer").hide();
+                var msg = "Reservation failed. Please select another slot.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                $("#booking_msg").html(`<span style="color: #ff6b6b; font-weight: bold;"><i class="fa-solid fa-circle-exclamation"></i> ${msg}</span>`);
             }
         });
-        console.log(pc);
     });
     var dataTable = $('#dataTable').DataTable({
         processing: true,

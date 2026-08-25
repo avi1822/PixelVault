@@ -4,7 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
-    <title>Document</title>
+    <title>PixelVault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
     <link rel="stylesheet" href="{{url('assets/css/home_style.css')}}">
@@ -28,7 +28,7 @@
         </div> -->
         <div class="upper">
             <nav>
-                <div class="logo"><span>N</span>EXTGEN</div>
+                <div class="logo"><span>P</span>IXELVAULT</div>
                 <div class="navlist">
                     <input type="radio" name="navLinks" value="home" id="navhome" checked><label
                         onclick="$('#navhome').prop('checked', true)" for="navhome"><a href="#">Home</a></label>
@@ -39,7 +39,8 @@
                         onclick="$('#navpackages').prop('checked', true)" for="navpackages"><a
                             href="#packages">Packages</a></label>
                     <input type="radio" name="navLinks" value="about" id="navabout"><label
-                        onclick="$('#navabout').prop('checked', true)" for="navabout"><a href="#">About</a></label>
+                        onclick="$('#navabout').prop('checked', true)" for="navabout"><a
+                            href="#aboutus">About</a></label>
                     <input type="radio" name="navLinks" value="contacts" id="navcontacts"><label
                         onclick="$('#navcontacts').prop('checked', true)" for="navcontacts"><a
                             href="#contacts">Contact</a></label>
@@ -63,17 +64,15 @@
                         <div class="text">
                             <div class="caption">JOIN US.</div>
                             <div class="para">
-                                Lorem ipsum dolor sit amet, consectetur adipisicing elit.
-                                Aperiam sunt corporis esse fugiat officiis quaerat nulla. In, natus. Perferendis
-                                accusantium
-                                amet pariatur quibusdam minima consequuntur tenetur architecto sunt, impedit nesciunt
-                                optio
-                                illum quas quisquam suscipit tempora, doloribus magnam voluptate ut! Aperiam earum minus
-                                aliquam numquam itaque dolorem facere voluptas exercitationem?
-
+                                Welcome to PixelVault, the ultimate gaming cafe experience! Dive into high-performance gaming rigs, ultra-low latency connections, and the latest AAA titles. Whether you're competing in tournaments or gaming with friends, PixelVault is your home.
                             </div>
                             <div class="buttons">
                                 <div class="facebook"><i class="fa-brands fa-facebook-f"></i></div>
+                                <div class="instagram">
+                                    <a href="https://www.instagram.com/pixel_vault1011" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; width: 100%; height: 100%; display: grid; place-items: center;">
+                                        <i class="fa-brands fa-instagram"></i>
+                                    </a>
+                                </div>
                                 <div class="youtube"><i class="fa-brands fa-youtube"></i></div>
                                 <div class="contact"><a href="#contacts">Contact</a></div>
                             </div>
@@ -94,33 +93,6 @@
                 </div>
             </div>
         </section>
-        <!-- <section class="aboutus">
-            <div class="aucontainer">
-                <div class="caption">About Us</div>
-                <div class="ausubcontainer">
-                    <div class="aucon">
-                        <div class="slids">
-                            <div class="upperblur"></div>
-                            <div class="slid">
-                                <img src="https://t4.ftcdn.net/jpg/04/33/31/33/360_F_433313379_H0YcLl0UsKdGf7Jv9pkjuzboos17OMWW.jpg" alt="">
-                            </div>
-                            <div class="slid">
-                                <img src="https://t3.ftcdn.net/jpg/01/63/91/94/360_F_163919432_qiG1V2wEiNMsqaHT0g11EBmBQpih6Czm.jpg" alt="">
-                            </div>
-                            <div class="slid">
-                                <img src="https://t3.ftcdn.net/jpg/04/29/97/24/360_F_429972422_idgQSEcP8Ur9ky1ZXXUlrGwx39wUjyqH.jpg" alt="">
-                            </div>
-                        </div>
-                        <div class="dots">
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                            <div class="dot"></div>
-                        </div>
-                    </div>
-                    <div class="aucon2"></div>
-                </div>
-            </div>
-        </section> -->
         <section class="dashboard">
             <div class="dashcontainer">
                 <div class="dashcard">
@@ -156,8 +128,7 @@
                         Play games
                     </div>
                     <div class="para">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum, dolorem porro ad quam
-                        aspernatur ipsam nostrum aliquam impedit nesciunt dolore!
+                        Experience the ultimate gaming arena with top-tier PCs, high refresh rate displays, mechanical peripherals, and a vast library of competitive AAA titles.
                     </div>
                     {{-- <div class="button">
                         <button id="discoverbtn">Discover More</button>
@@ -169,8 +140,7 @@
                         Online Payment
                     </div>
                     <div class="para">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum, dolorem porro ad quam
-                        aspernatur ipsam nostrum aliquam impedit nesciunt dolore!
+                        Seamless and secure booking. Book your gaming PC, reserve package slots, and pay online effortlessly with instant confirmation.
                     </div>
                     {{-- <div class="button">
                         <button id="discoverbtn">Discover More</button>
@@ -182,8 +152,7 @@
                         Foods
                     </div>
                     <div class="para">
-                        Lorem ipsum dolor sit amet, consectetur adipisicing elit. Earum, dolorem porro ad quam
-                        aspernatur ipsam nostrum aliquam impedit nesciunt dolore!
+                        Refuel while you game! Enjoy delicious hot snacks, burgers, energy drinks, and beverages delivered straight to your gaming station.
                     </div>
                     {{-- <div class="button">
                         <button id="discoverbtn">Discover More</button>
@@ -287,20 +256,48 @@
                 </div>
             </div>
         </section>
+        <section class="aboutus" id="aboutus">
+            <div class="caption">About PixelVault</div>
+            <div class="about-desc">
+                PixelVault is a next-generation gaming hub built for passion, performance, and community. We offer high-end gaming stations equipped with powerful hardware, ultra-fast fiber internet, and premium peripherals to give you the ultimate gaming edge. Whether you're practicing for esports tournaments or chilling with friends, PixelVault is your home.
+            </div>
+            <div class="about-grid">
+                <div class="about-card">
+                    <i class="fa-solid fa-microchip"></i>
+                    <h3>High Performance Rigs</h3>
+                    <p>Powered by high-spec Intel & RTX graphics paired with low-latency 240Hz gaming monitors.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fa-solid fa-wifi"></i>
+                    <h3>Ultra-Fast Network</h3>
+                    <p>Dedicated fiber-optic gigabit connection ensuring zero-lag multiplayer gaming.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fa-solid fa-couch"></i>
+                    <h3>Comfort & RGB Vibe</h3>
+                    <p>Ergonomic gaming chairs, clean setups, and immersive ambient lighting for long sessions.</p>
+                </div>
+                <div class="about-card">
+                    <i class="fa-solid fa-trophy"></i>
+                    <h3>Tournaments & Events</h3>
+                    <p>Regular competitive gaming tournaments, community LAN battles, and leaderboards.</p>
+                </div>
+            </div>
+        </section>
         <section class="contacts" id="contacts">
             <div class="caption">Contact</div>
             <div class="conoptions">
                 <div class="concard">
                     <div class="address conop"><i class="fa-solid fa-location-dot"></i></div>
-                    <div class="text">C/55/1, Nuwara para, Kegalle</div>
+                    <div class="text"><a href="https://maps.app.goo.gl/nVbSY5Pe4ovj8JNWA" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">View Shop on Google Maps</a></div>
                 </div>
                 <div class="concard">
                     <div class="num conop"><i class="fa-solid fa-phone"></i></div>
-                    <div class="text">+94 714585652</div>
+                    <div class="text">+91 9321495527</div>
                 </div>
                 <div class="concard">
                     <div class="email conop"><i class="fa-solid fa-envelope"></i></div>
-                    <div class="text">nextgen@gmail.com</div>
+                    <div class="text"><a href="mailto:pixelvault1011@gmail.com" style="color: inherit; text-decoration: underline;">pixelvault1011@gmail.com</a></div>
                 </div>
             </div>
             <div class="condetails">
@@ -315,9 +312,9 @@
                         <!-- <i class="material-icons">send</i> -->
                     </button>
                 </div>
-                <div class="map">
+                <div class="map" style="position: relative;">
                     <iframe class="position-relative rounded w-100 h-100"
-                        src="https://www.google.com/maps/embed?pb=!1m18!1m12!1m3!1d31675.07069155449!2d79.99480351508817!3d7.08142232268367!2m3!1f0!2f0!3f0!3m2!1i1024!2i768!4f13.1!3m3!1m2!1s0x3ae2fb67a22e72d9%3A0x913a2c56a49c8d8e!2sGampaha%2C%20Sri%20Lanka!5e0!3m2!1sen!2sbd!4v1664614126869!5m2!1sen!2sbd"
+                        src="https://maps.google.com/maps?q=18.990737,73.124983&hl=en&z=15&output=embed"
                         frameborder="0" style="width:100%; height:100%; border:0;" allowfullscreen=""
                         aria-hidden="false" tabindex="0"></iframe>
                 </div>
@@ -374,7 +371,7 @@
                 </div>
             </div>
             <div class="copyright">
-                copyright © 2022 NextGen
+                copyright © 2026 PixelVault
             </div>
 
         </div>

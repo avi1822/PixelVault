@@ -1,10 +1,10 @@
 :root{
-   --bgcolor: rgb(23, 26, 30);
-   --bgcolor2: rgb(51, 48, 59);
-   --bgcolor3: rgb(38, 41, 46);
-   --bgcolor3A: rgba(38, 41, 46, 0.3);
-   --secondc: rgb(254, 206, 122);
-   --secondcA: rgba(254, 206, 122, 0.9);
+   --bgcolor: rgb(15, 12, 26);
+   --bgcolor2: rgb(26, 20, 44);
+   --bgcolor3: rgb(38, 28, 58);
+   --bgcolor3A: rgba(38, 28, 58, 0.3);
+   --secondc: rgb(168, 85, 247);
+   --secondcA: rgba(168, 85, 247, 0.9);
  }
  ::-webkit-scrollbar{
      width: 0.6rem;

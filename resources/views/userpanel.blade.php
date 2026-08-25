@@ -6,7 +6,7 @@
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <meta name="csrf-token" content="{{ csrf_token() }}">
-    <title>Document</title>
+    <title>PixelVault</title>
     <link rel="stylesheet" href="{{url('assets/css/jquery.dataTables.min.css')}}">
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link rel="stylesheet" href="{{url('assets/css/userpanel_style.css')}}">
@@ -25,7 +25,7 @@
         <div class="container">
             <nav>
                 <div class="logo" id="mainlogo"><i class="fa-solid fa-bars"></i>
-                    <div class="text"><span>N</span>EXTGEN</div>
+                    <div class="text"><span>P</span>IXELVAULT</div>
                 </div>
                 <div class="hiuser" style="opacity: 0.8;">Hi <span></span></div>
                 <div class="logout"><a href="{{route("logout")}}" id="logoutbtn">Logout</a></div>
@@ -146,6 +146,14 @@
                     </div>
                     <div class="computersdata">
                         <div class="datatcontainer">
+                            <div class="floor-zone-bar" style="display: flex; gap: 15px; margin-bottom: 15px; justify-content: center;">
+                                <button class="zone-btn active" id="btnZonePC" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 10px 22px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                                    💻 Lower Floor - PC Arena (Rs. 125/hr)
+                                </button>
+                                <button class="zone-btn" id="btnZonePS5" style="background: var(--bgcolor3); color: #fff; border: 1px solid var(--secondc); padding: 10px 22px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                                    🎮 Upper Floor - PS5 Lounge (Rs. 150/hr)
+                                </button>
+                            </div>
                             <div class="pc">
                                 <div class="con">
                                     <div class="pcname" id="computername">PC - 01</div>
@@ -299,6 +307,7 @@
                         <div class="exp">Slect a time slot<span> *</span></span></div>
                         <div class="timelist">
                         </div>
+                        <div id="booking_msg" style="margin-top: 10px; font-size: 0.9rem; text-align: center;"></div>
                         <div class="paynow">
                             <button id="paynowbtn">Pay Now</button>
                         </div>

@@ -1,6 +1,27 @@
 var targetCanMove = false;
+
+function resetButtons() {
+  $("#logbtn, #regbtn").css("display", "").removeClass("bullet-fire");
+  $(".homearea .land").removeClass("shake shake2");
+}
+
+$(window).on("pageshow focus", function () {
+  resetButtons();
+});
+
 function loginBtn() {
-  window.open('/login', "_self");
+  var logbtn = $("#logbtn");
+  var landarea = $(".homearea .land");
+
+  logbtn.removeClass("bullet-fire");
+  landarea.removeClass("shake shake2");
+
+  logbtn.addClass("bullet-fire");
+  landarea.addClass('shake');
+
+  setTimeout(function () {
+    window.location.href = '/login';
+  }, 2000);
 }
 
 function bulletBtn() {
@@ -8,15 +29,13 @@ function bulletBtn() {
   var landarea = $(".homearea .land");
 
   regbtn.removeClass("bullet-fire");
-  landarea.removeClass("shake");
-  landarea.removeClass("shake2");
+  landarea.removeClass("shake shake2");
 
   regbtn.addClass("bullet-fire");
   landarea.addClass('shake');
 
   setTimeout(function () {
-    regbtn.css("display", "none");
-    window.open('/register', "_self");
+    window.location.href = '/register';
   }, 2000);
 }
 
@@ -64,6 +83,7 @@ function targetMove(e) {
 }
 
 $(document).ready(function () {
+  resetButtons();
   setDashData();
 
   var targetBack = $(".homearea .land .wall .subcontainer2");

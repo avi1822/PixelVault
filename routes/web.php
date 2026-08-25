@@ -73,11 +73,18 @@ Route::get('computer/viewone', [ComputerController::class, 'viewone']);
 Route::get('computer/viewoneimg', [ComputerController::class, 'viewoneimg']);
 Route::get('computer/delete', [ComputerController::class, 'delete']);
 
+use App\Http\Controllers\VisitorEntryController;
+
 Route::post('package/store', [PackageController::class, 'store']);
 Route::post('package/update', [PackageController::class, 'update']);
 Route::post('package/delete', [PackageController::class, 'delete']);
 Route::get('package/viewall', [PackageController::class, 'viewall']);
 Route::get('package/viewone', [PackageController::class, 'viewone']);
+
+Route::post('visitor/store', [VisitorEntryController::class, 'store'])->middleware(['auth', 'isAdmin']);
+Route::get('visitor/anydata', [VisitorEntryController::class, 'anydata'])->middleware(['auth', 'isAdmin']);
+Route::get('visitor/analytics', [VisitorEntryController::class, 'analytics'])->middleware(['auth', 'isAdmin']);
+Route::post('visitor/delete', [VisitorEntryController::class, 'delete'])->middleware(['auth', 'isAdmin']);
 
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 

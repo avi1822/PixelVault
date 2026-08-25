@@ -68,7 +68,9 @@ class GameController extends Controller
     public function viewone(Request $request){
         $id = $request->id;
         $game = Game::select("path")-> where("id",$id)->get();
-        $game[0]["path"] = (Storage::disk('local')->get("gameimg/".$game[0]->path));
+        if (isset($game[0]) && Storage::disk('local')->exists("gameimg/".$game[0]->path)) {
+            $game[0]["path"] = (Storage::disk('local')->get("gameimg/".$game[0]->path));
+        }
 
         return $game;
     }
@@ -81,7 +83,9 @@ class GameController extends Controller
     public function viewhimg(Request $request){
         $games = Game::all("id", "name", "path");
         foreach($games as $game){
-            $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+            if (Storage::disk('local')->exists("gameimg/".$game->path)) {
+                $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+            }
         }
 
         return $games;
@@ -104,7 +108,9 @@ class GameController extends Controller
 
         $updatedItems = $games->getCollection();
         foreach($updatedItems as $game){
-            $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+            if (Storage::disk('local')->exists("gameimg/".$game->path)) {
+                $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+            }
         }
         $games->setCollection($updatedItems);
 
@@ -114,7 +120,9 @@ class GameController extends Controller
     public function getLatest(){
         $games = Game::latest()->take(6)->select("id", "name", "path")->get();
         foreach($games as $game){
-            $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+            if (Storage::disk('local')->exists("gameimg/".$game->path)) {
+                $game["path"] = (Storage::disk('local')->get("gameimg/".$game->path));
+            }
         }
         return $games;
     }
