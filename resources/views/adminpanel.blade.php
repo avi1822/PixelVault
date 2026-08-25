@@ -13,6 +13,7 @@
     <link rel="stylesheet" href="{{url('assets/css/loader_style.css')}}">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="https://cdn.datatables.net/1.12.1/js/jquery.dataTables.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <script src="{{url('assets/js/admin_page.js')}}"></script>
 </head>
 
@@ -28,7 +29,12 @@
             <div class="admin">
                 <div class="subcontainer">
                     <div class="ul">
-                        <input type="radio" name="slidmenu" value="Reservations" id="menu1" checked>
+                        <input type="radio" name="slidmenu" value="Analytics" id="menu12" checked>
+                        <label for="menu12">
+                            <i class="fa-solid fa-chart-line"></i>
+                            <div class="text">Executive Analytics</div>
+                        </label>
+                        <input type="radio" name="slidmenu" value="Reservations" id="menu1">
                         <label for="menu1">
                             <i class="fa-solid fa-calendar-days"></i>
                             <div class="text">Reservations</div>
@@ -86,9 +92,89 @@
                     </div>
                 </div>
                 <div class="subcontainer2">
-                    {{-- <div class="caption">
-                        <div class="text">Reservations</div>
-                    </div> --}}
+                    <div class="analyticsdata">
+                        <div class="datatcontainer">
+                            <!-- Executive Toolbar: Date Range Filter & Manual Refresh -->
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; flex-wrap: wrap; gap: 15px; background: var(--bgcolor3); padding: 15px; border-radius: 10px; border: 1px solid var(--secondc);">
+                                <div style="display: flex; align-items: center; gap: 10px; flex-wrap: wrap;">
+                                    <span style="font-weight: bold; color: var(--secondc);"><i class="fa-solid fa-filter"></i> Date Range:</span>
+                                    <button class="btn-date-preset" data-preset="today" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Today</button>
+                                    <button class="btn-date-preset" data-preset="7days" style="background: var(--bgcolor2); color: #fff; border: 1px solid var(--secondc); padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Last 7 Days</button>
+                                    <button class="btn-date-preset" data-preset="30days" style="background: var(--bgcolor2); color: #fff; border: 1px solid var(--secondc); padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">Last 30 Days</button>
+                                    <button class="btn-date-preset" data-preset="month" style="background: var(--bgcolor2); color: #fff; border: 1px solid var(--secondc); padding: 6px 12px; border-radius: 6px; font-weight: bold; cursor: pointer;">This Month</button>
+                                    <div style="display: flex; align-items: center; gap: 5px; margin-left: 10px;">
+                                        <input type="date" id="analytics_start_date" style="padding: 5px; background: var(--bgcolor2); border: 1px solid var(--secondc); color: #fff; border-radius: 4px;">
+                                        <span>to</span>
+                                        <input type="date" id="analytics_end_date" style="padding: 5px; background: var(--bgcolor2); border: 1px solid var(--secondc); color: #fff; border-radius: 4px;">
+                                        <button id="btnApplyCustomDate" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 6px 10px; border-radius: 4px; font-weight: bold; cursor: pointer;">Apply</button>
+                                    </div>
+                                </div>
+                                <div style="display: flex; align-items: center; gap: 15px;">
+                                    <span style="font-size: 0.85rem; color: #aaa;" id="analytics_last_updated">Last updated: --:--:--</span>
+                                    <button id="btnRefreshAnalytics" style="background: #339af0; color: #fff; border: none; padding: 6px 14px; border-radius: 6px; font-weight: bold; cursor: pointer;"><i class="fa-solid fa-rotate-right"></i> Refresh</button>
+                                </div>
+                            </div>
+
+                            <!-- Executive KPI Cards -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(180px, 1fr)); gap: 15px; margin-bottom: 25px;">
+                                <div style="background: var(--bgcolor3); border-left: 4px solid var(--secondc); padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">TOTAL INVOICED</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: var(--secondc);" id="kpi_total_invoiced">Rs.0</div>
+                                </div>
+                                <div style="background: var(--bgcolor3); border-left: 4px solid #51cf66; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">TOTAL COLLECTED</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: #51cf66;" id="kpi_total_paid">Rs.0</div>
+                                </div>
+                                <div style="background: var(--bgcolor3); border-left: 4px solid #ff6b6b; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">PENDING BALANCE</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: #ff6b6b;" id="kpi_total_pending">Rs.0</div>
+                                </div>
+                                <div style="background: var(--bgcolor3); border-left: 4px solid #339af0; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">GAMING REVENUE</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: #339af0;" id="kpi_gaming_rev">Rs.0</div>
+                                </div>
+                                <div style="background: var(--bgcolor3); border-left: 4px solid #fcc419; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">F&B SALES REVENUE</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: #fcc419;" id="kpi_fnb_rev">Rs.0</div>
+                                </div>
+                                <div style="background: var(--bgcolor3); border-left: 4px solid #cc5de8; padding: 15px; border-radius: 8px;">
+                                    <div style="font-size: 0.8rem; color: #aaa;">VIP MEMBERSHIPS</div>
+                                    <div style="font-size: 1.6rem; font-weight: bold; color: #cc5de8;" id="kpi_mem_rev">Rs.0</div>
+                                </div>
+                            </div>
+
+                            <!-- Operational Health Alerts Panel -->
+                            <div style="background: var(--bgcolor3); border: 1px solid var(--secondc); border-radius: 10px; padding: 15px; margin-bottom: 25px;">
+                                <h4 style="margin: 0 0 12px 0; color: var(--secondc);"><i class="fa-solid fa-heart-pulse"></i> Operational Health & System Alerts</h4>
+                                <div id="operationalAlertsList" style="display: flex; gap: 12px; flex-wrap: wrap;">
+                                    <div style="color: #51cf66;">🟢 All systems operational</div>
+                                </div>
+                            </div>
+
+                            <!-- Charts Grid Section -->
+                            <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(320px, 1fr)); gap: 20px; margin-bottom: 30px;">
+                                <div style="background: var(--bgcolor3); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <h4 style="margin: 0 0 15px 0; color: var(--secondc); text-align: center;"><i class="fa-solid fa-chart-pie"></i> Revenue Breakdown</h4>
+                                    <div style="height: 240px; position: relative;">
+                                        <canvas id="chartRevenueBreakdown"></canvas>
+                                    </div>
+                                </div>
+                                <div style="background: var(--bgcolor3); border-radius: 10px; padding: 20px; border: 1px solid rgba(255,255,255,0.1);">
+                                    <h4 style="margin: 0 0 15px 0; color: var(--secondc); text-align: center;"><i class="fa-solid fa-wallet"></i> Payment Methods</h4>
+                                    <div style="height: 240px; position: relative;">
+                                        <canvas id="chartPaymentMethods"></canvas>
+                                    </div>
+                                </div>
+                            </div>
+
+                            <!-- Station Utilization Section -->
+                            <div style="background: var(--bgcolor3); border-radius: 10px; padding: 20px; margin-bottom: 25px; border: 1px solid rgba(255,255,255,0.1);">
+                                <h4 style="margin: 0 0 15px 0; color: var(--secondc);"><i class="fa-solid fa-desktop"></i> Gaming Station Utilization Rank</h4>
+                                <div id="stationUtilizationGrid" style="display: grid; grid-template-columns: repeat(auto-fill, minmax(240px, 1fr)); gap: 12px;">
+                                </div>
+                            </div>
+                        </div>
+                    </div>
                     <div class="reservationsdata">
                         <div class="datatcontainer">
                             <div class="station-overview-cards" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">

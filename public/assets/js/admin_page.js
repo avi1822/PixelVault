@@ -229,6 +229,7 @@ $(document).ready(function () {
         $(".subcontainer2 .billingdata").hide();
         $(".subcontainer2 .membershipsdata").hide();
         $(".subcontainer2 .inventorydata").hide();
+        $(".subcontainer2 .analyticsdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption === "Visitors") {
             populateVisitorGames();
@@ -243,6 +244,8 @@ $(document).ready(function () {
             if (typeof membershipTable !== 'undefined') membershipTable.draw();
         } else if (caption === "Inventory") {
             if (typeof inventoryTable !== 'undefined') inventoryTable.draw();
+        } else if (caption === "Analytics") {
+            loadExecutiveDashboard();
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -1262,4 +1265,249 @@ $('#btnSubmitRestock').on('click', function () {
             $('#restock_msg').html(`<span style="color:#ff6b6b;">${msg}</span>`);
         }
     });
+});
+
+/* ============================================================
+   PHASE 7B — EXECUTIVE ANALYTICS DASHBOARD UI LOGIC
+   ============================================================ */
+var revenueChartInstance = null;
+var paymentChartInstance = null;
+var analyticsStartDate = new Date().toISOString().split('T')[0];
+var analyticsEndDate = new Date().toISOString().split('T')[0];
+
+function loadExecutiveDashboard(sDate, eDate) {
+    if (sDate) analyticsStartDate = sDate;
+    if (eDate) analyticsEndDate = eDate;
+
+    $('#analytics_start_date').val(analyticsStartDate);
+    $('#analytics_end_date').val(analyticsEndDate);
+
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "GET",
+        url: "/analytics/dashboard",
+        data: {
+            start_date: analyticsStartDate,
+            end_date: analyticsEndDate
+        },
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+
+            // 1. KPI Cards
+            let s = res.summary;
+            let r = res.revenue_breakdown;
+            $('#kpi_total_invoiced').text('Rs.' + (s.total_invoiced || 0));
+            $('#kpi_total_paid').text('Rs.' + (s.total_paid || 0));
+            $('#kpi_total_pending').text('Rs.' + (s.total_pending || 0));
+            $('#kpi_gaming_rev').text('Rs.' + (r.gaming || 0));
+            $('#kpi_fnb_rev').text('Rs.' + (r.food || 0));
+            $('#kpi_mem_rev').text('Rs.' + (r.membership || 0));
+
+            $('#analytics_last_updated').text('Last updated: ' + new Date().toLocaleTimeString());
+
+            // 2. Operational Health Alerts
+            $('#operationalAlertsList').empty();
+            let alerts = res.alerts;
+            let alertCount = 0;
+
+            if (alerts.low_stock_products && alerts.low_stock_products.length > 0) {
+                alertCount++;
+                $('#operationalAlertsList').append(`
+                    <div style="background: rgba(252, 196, 25, 0.15); border: 1px solid #fcc419; color: #fcc419; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem;">
+                        🟡 <strong>${alerts.low_stock_products.length} Products Low Stock</strong> (e.g. ${alerts.low_stock_products[0].name})
+                    </div>
+                `);
+            }
+            if (alerts.maintenance_stations && alerts.maintenance_stations.length > 0) {
+                alertCount++;
+                $('#operationalAlertsList').append(`
+                    <div style="background: rgba(255, 107, 107, 0.15); border: 1px solid #ff6b6b; color: #ff6b6b; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem;">
+                        🔴 <strong>${alerts.maintenance_stations.length} Stations Maintenance/Offline</strong>
+                    </div>
+                `);
+            }
+            if (alerts.pending_invoices_count > 0) {
+                alertCount++;
+                $('#operationalAlertsList').append(`
+                    <div style="background: rgba(255, 107, 107, 0.15); border: 1px solid #ff6b6b; color: #ff6b6b; padding: 8px 14px; border-radius: 6px; font-size: 0.85rem;">
+                        🟠 <strong>${alerts.pending_invoices_count} Invoices Pending Payment</strong>
+                    </div>
+                `);
+            }
+
+            if (alertCount === 0) {
+                $('#operationalAlertsList').html('<div style="color: #51cf66; font-weight: bold;">🟢 All systems operational. No active alerts.</div>');
+            }
+
+            // 3. Render Revenue Breakdown Doughnut Chart
+            renderRevenueChart(r);
+
+            // 4. Render Payment Methods Bar Chart
+            renderPaymentChart(res.payment_methods);
+
+            // 5. Render Station Utilization
+            renderStationUtilization(res.station_utilization);
+        },
+        error: function () {
+            $(".loadercontainer").hide();
+            alert("Unable to load executive analytics. Please try again.");
+        }
+    });
+}
+
+function renderRevenueChart(revenueData) {
+    var ctx = document.getElementById('chartRevenueBreakdown');
+    if (!ctx) return;
+
+    if (revenueChartInstance) {
+        revenueChartInstance.destroy();
+    }
+
+    revenueChartInstance = new Chart(ctx, {
+        type: 'doughnut',
+        data: {
+            labels: ['Gaming Pass', 'Food & Snacks', 'VIP Membership', 'Other'],
+            datasets: [{
+                data: [
+                    revenueData.gaming || 0,
+                    revenueData.food || 0,
+                    revenueData.membership || 0,
+                    revenueData.other || 0
+                ],
+                backgroundColor: ['#339af0', '#fcc419', '#cc5de8', '#adb5bd'],
+                borderWidth: 2,
+                borderColor: '#1a1b1e'
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            plugins: {
+                legend: {
+                    position: 'bottom',
+                    labels: { color: '#fff', font: { size: 12 } }
+                }
+            }
+        }
+    });
+}
+
+function renderPaymentChart(paymentData) {
+    var ctx = document.getElementById('chartPaymentMethods');
+    if (!ctx) return;
+
+    if (paymentChartInstance) {
+        paymentChartInstance.destroy();
+    }
+
+    paymentChartInstance = new Chart(ctx, {
+        type: 'bar',
+        data: {
+            labels: ['Cash', 'UPI / QR', 'Card'],
+            datasets: [{
+                label: 'Amount Collected (Rs.)',
+                data: [
+                    paymentData.cash ? paymentData.cash.collected : 0,
+                    paymentData.upi ? paymentData.upi.collected : 0,
+                    paymentData.card ? paymentData.card.collected : 0
+                ],
+                backgroundColor: ['#51cf66', '#339af0', '#cc5de8'],
+                borderRadius: 6
+            }]
+        },
+        options: {
+            responsive: true,
+            maintainAspectRatio: false,
+            scales: {
+                y: {
+                    beginAtZero: true,
+                    ticks: { color: '#aaa' },
+                    grid: { color: 'rgba(255,255,255,0.05)' }
+                },
+                x: {
+                    ticks: { color: '#fff' },
+                    grid: { display: false }
+                }
+            },
+            plugins: {
+                legend: { display: false }
+            }
+        }
+    });
+}
+
+function renderStationUtilization(stations) {
+    $('#stationUtilizationGrid').empty();
+    if (!stations || stations.length === 0) {
+        $('#stationUtilizationGrid').html('<div style="color:#aaa;">No station utilization data.</div>');
+        return;
+    }
+
+    // Sort by highest utilization percentage descending
+    stations.sort((a, b) => b.utilization_percent - a.utilization_percent);
+
+    stations.forEach(st => {
+        let pct = st.utilization_percent;
+        let barColor = (pct > 75) ? '#ff6b6b' : ((pct > 40) ? '#fcc419' : '#51cf66');
+
+        $('#stationUtilizationGrid').append(`
+            <div style="background: var(--bgcolor2); border: 1px solid rgba(255,255,255,0.05); padding: 10px 14px; border-radius: 6px;">
+                <div style="display: flex; justify-content: space-between; font-size: 0.85rem; margin-bottom: 5px;">
+                    <strong style="color: #fff;">${st.station_label}</strong>
+                    <span style="color: ${barColor}; font-weight: bold;">${pct}% Utilized</span>
+                </div>
+                <div style="background: var(--bgcolor3); height: 8px; border-radius: 4px; overflow: hidden; margin-bottom: 5px;">
+                    <div style="width: ${pct}%; background: ${barColor}; height: 100%;"></div>
+                </div>
+                <div style="display: flex; justify-content: space-between; font-size: 0.75rem; color: #aaa;">
+                    <span>Sessions: ${st.session_count}</span>
+                    <span>Played: ${st.gaming_minutes}m</span>
+                </div>
+            </div>
+        `);
+    });
+}
+
+// Preset Date Filter Buttons
+$(document).on('click', '.btn-date-preset', function () {
+    $('.btn-date-preset').css({ background: 'var(--bgcolor2)', color: '#fff', border: '1px solid var(--secondc)' });
+    $(this).css({ background: 'var(--secondc)', color: 'var(--bgcolor)', border: 'none' });
+
+    let preset = $(this).data('preset');
+    let end = new Date().toISOString().split('T')[0];
+    let start = end;
+
+    if (preset === '7days') {
+        let d = new Date();
+        d.setDate(d.getDate() - 6);
+        start = d.toISOString().split('T')[0];
+    } else if (preset === '30days') {
+        let d = new Date();
+        d.setDate(d.getDate() - 29);
+        start = d.toISOString().split('T')[0];
+    } else if (preset === 'month') {
+        let d = new Date();
+        d.setDate(1);
+        start = d.toISOString().split('T')[0];
+    }
+
+    loadExecutiveDashboard(start, end);
+});
+
+$('#btnApplyCustomDate').on('click', function () {
+    let start = $('#analytics_start_date').val();
+    let end = $('#analytics_end_date').val();
+
+    if (!start || !end) {
+        alert("Please select valid start and end dates!");
+        return;
+    }
+
+    $('.btn-date-preset').css({ background: 'var(--bgcolor2)', color: '#fff', border: '1px solid var(--secondc)' });
+    loadExecutiveDashboard(start, end);
+});
+
+$('#btnRefreshAnalytics').on('click', function () {
+    loadExecutiveDashboard(analyticsStartDate, analyticsEndDate);
 });
