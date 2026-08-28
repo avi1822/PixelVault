@@ -230,6 +230,7 @@ $(document).ready(function () {
         $(".subcontainer2 .membershipsdata").hide();
         $(".subcontainer2 .inventorydata").hide();
         $(".subcontainer2 .analyticsdata").hide();
+        $(".subcontainer2 .messagesdata").hide();
         $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
         if (caption === "Visitors") {
             populateVisitorGames();
@@ -246,6 +247,8 @@ $(document).ready(function () {
             if (typeof inventoryTable !== 'undefined') inventoryTable.draw();
         } else if (caption === "Analytics") {
             loadExecutiveDashboard();
+        } else if (caption === "Messages") {
+            if (typeof messagesTable !== 'undefined') messagesTable.draw();
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -1510,4 +1513,82 @@ $('#btnApplyCustomDate').on('click', function () {
 
 $('#btnRefreshAnalytics').on('click', function () {
     loadExecutiveDashboard(analyticsStartDate, analyticsEndDate);
+});
+
+/* ============================================================
+   VISITOR CONTACT MESSAGES DATATABLE & MANAGEMENT
+   ============================================================ */
+var messagesTable = $('#messagesTable').DataTable({
+    processing: true,
+    serverSide: true,
+    ajax: '/contact/anydata',
+    columns: [
+        { data: 'id', name: 'id' },
+        { data: 'name', name: 'name' },
+        { data: 'email', name: 'email' },
+        { data: 'subject', name: 'subject', defaultContent: '<em>No Subject</em>' },
+        { data: 'message', name: 'message' },
+        {
+            data: 'status',
+            name: 'status',
+            render: function (data) {
+                if (data === 'UNREAD') {
+                    return '<span style="background:#ff6b6b; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8rem;">UNREAD</span>';
+                }
+                return '<span style="background:#339af0; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8rem;">READ</span>';
+            }
+        },
+        {
+            data: 'created_at',
+            name: 'created_at',
+            render: function (data) {
+                return new Date(data).toLocaleString();
+            }
+        },
+        { data: 'action', name: 'action', orderable: false, searchable: false }
+    ]
+});
+
+$(document).on('click', '.btn-mark-read', function () {
+    var id = $(this).data('id');
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "POST",
+        url: "/contact/markread",
+        data: { id: id },
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+            if (res.success) {
+                messagesTable.draw();
+            }
+        },
+        error: function () {
+            $(".loadercontainer").hide();
+            alert("Failed to mark message as read.");
+        }
+    });
+});
+
+$(document).on('click', '.btn-delete-msg', function () {
+    var id = $(this).data('id');
+    if (confirm("Are you sure you want to delete this message?")) {
+        $(".loadercontainer").show();
+        $.ajax({
+            type: "POST",
+            url: "/contact/delete",
+            data: { id: id },
+            dataType: "json",
+            success: function (res) {
+                $(".loadercontainer").hide();
+                if (res.success) {
+                    messagesTable.draw();
+                }
+            },
+            error: function () {
+                $(".loadercontainer").hide();
+                alert("Failed to delete message.");
+            }
+        });
+    }
 });

@@ -116,6 +116,13 @@ use App\Http\Controllers\AnalyticsController;
 
 Route::get('analytics/dashboard', [AnalyticsController::class, 'dashboard'])->middleware(['auth', 'isAdmin']);
 
+use App\Http\Controllers\ContactMessageController;
+
+Route::post('contact/store', [ContactMessageController::class, 'store']);
+Route::get('contact/anydata', [ContactMessageController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
+Route::post('contact/markread', [ContactMessageController::class, 'markRead'])->middleware(['auth', 'isAdmin']);
+Route::post('contact/delete', [ContactMessageController::class, 'delete'])->middleware(['auth', 'isAdmin']);
+
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 
 Route::get('home/view', [HomeController::class, 'view']);

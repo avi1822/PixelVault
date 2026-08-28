@@ -161,3 +161,55 @@ $(document).ready(function () {
 //     back.addEventListener("click", shakeWindow);
 //   }
 // }
+
+$(document).ready(function () {
+    $("#btnSubmitContact").on("click", function (e) {
+        e.preventDefault();
+
+        var name = $("#contact_name").val().trim();
+        var email = $("#contact_email").val().trim();
+        var subject = $("#contact_subject").val().trim();
+        var message = $("#contact_message").val().trim();
+
+        if (!name || !email || !message) {
+            $("#contact_msg_response").html('<span style="color:#ff6b6b;">Please fill in your Name, Email, and Message!</span>');
+            return;
+        }
+
+        $("#btnSubmitContact").prop("disabled", true).text("Sending...");
+        $("#contact_msg_response").html("");
+
+        $.ajax({
+            type: "POST",
+            url: "/contact/store",
+            headers: {
+                'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
+            },
+            data: {
+                name: name,
+                email: email,
+                subject: subject,
+                message: message
+            },
+            dataType: "json",
+            success: function (res) {
+                $("#btnSubmitContact").prop("disabled", false).text("Send Message");
+                if (res.success) {
+                    $("#contact_msg_response").html(`<span style="color:#51cf66;">${res.message}</span>`);
+                    $("#contact_name").val("");
+                    $("#contact_email").val("");
+                    $("#contact_subject").val("");
+                    $("#contact_message").val("");
+                }
+            },
+            error: function (xhr) {
+                $("#btnSubmitContact").prop("disabled", false).text("Send Message");
+                let msg = "Failed to send message. Please try again.";
+                if (xhr.responseJSON && xhr.responseJSON.message) {
+                    msg = xhr.responseJSON.message;
+                }
+                $("#contact_msg_response").html(`<span style="color:#ff6b6b;">${msg}</span>`);
+            }
+        });
+    });
+});

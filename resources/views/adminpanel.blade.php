@@ -89,6 +89,11 @@
                             <i class="fa-solid fa-clipboard-user"></i>
                             <div class="text">Daily Visitors</div>
                         </label>
+                        <input type="radio" name="slidmenu" value="Messages" id="menu13">
+                        <label for="menu13">
+                            <i class="fa-solid fa-envelope"></i>
+                            <div class="text">Visitor Messages</div>
+                        </label>
                     </div>
                 </div>
                 <div class="subcontainer2">
@@ -646,6 +651,28 @@
                                         <th>Game Played</th>
                                         <th>Food Item</th>
                                         <th>Floor / Zone</th>
+                                        <th>Action</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                </tbody>
+                            </table>
+                        </div>
+                    <div class="messagesdata">
+                        <div class="datatcontainer">
+                            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
+                                <h3 style="color: var(--secondc); margin: 0;"><i class="fa-solid fa-envelope"></i> Visitor Inquiries & Messages</h3>
+                            </div>
+                            <table id="messagesTable" style="width: 100%;">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Name</th>
+                                        <th>Email</th>
+                                        <th>Subject</th>
+                                        <th>Message</th>
+                                        <th>Status</th>
+                                        <th>Received At</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>

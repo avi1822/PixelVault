@@ -4,6 +4,7 @@
     <meta charset="UTF-8">
     <meta http-equiv="X-UA-Compatible" content="IE=edge">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PixelVault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
@@ -313,12 +314,13 @@
             <div class="condetails">
                 <div class="conform">
                     <div class="row">
-                        <input type="text" placeholder="Name">
-                        <input type="text" placeholder="Email Address">
+                        <input type="text" id="contact_name" placeholder="Name">
+                        <input type="text" id="contact_email" placeholder="Email Address">
                     </div>
-                    <input type="text" placeholder="Subject">
-                    <textarea name="" id="" placeholder="Message"></textarea>
-                    <button class="submit">Send Message
+                    <input type="text" id="contact_subject" placeholder="Subject">
+                    <textarea id="contact_message" placeholder="Message"></textarea>
+                    <div id="contact_msg_response" style="margin-bottom: 10px; font-weight: bold;"></div>
+                    <button class="submit" id="btnSubmitContact">Send Message
                         <!-- <i class="material-icons">send</i> -->
                     </button>
                 </div>
