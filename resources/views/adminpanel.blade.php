@@ -251,6 +251,7 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
                     <div class="billingdata">
                         <div class="datatcontainer">
                             <div class="billing-summary-cards" style="display: flex; gap: 15px; margin-bottom: 20px; flex-wrap: wrap;">
@@ -289,6 +290,7 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
                     <div class="membershipsdata">
                         <div class="datatcontainer">
                             <h3 style="color: var(--secondc); margin-bottom: 15px;"><i class="fa-solid fa-id-card"></i> Customer Memberships</h3>
@@ -310,6 +312,7 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
                     <div class="inventorydata">
                         <div class="datatcontainer">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
