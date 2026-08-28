@@ -658,6 +658,7 @@
                                 </tbody>
                             </table>
                         </div>
+                    </div>
                     <div class="messagesdata">
                         <div class="datatcontainer">
                             <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 15px;">
