@@ -29,6 +29,15 @@ if [ -n "$DATABASE_URL" ]; then
     export DB_SSLMODE="require"
 fi
 
+# Verify APP_KEY environment variable is present in production environment
+if [ -z "$APP_KEY" ]; then
+    echo "========================================================================="
+    echo "ERROR: APP_KEY environment variable is missing!"
+    echo "Please set APP_KEY in your Render Web Service Environment settings."
+    echo "========================================================================="
+    exit 1
+fi
+
 # Run storage symlink
 php artisan storage:link || true
 
