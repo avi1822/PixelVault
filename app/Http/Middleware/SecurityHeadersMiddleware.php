@@ -33,8 +33,8 @@ class SecurityHeadersMiddleware
         // Strict Content Security Policy (allows local assets, CDNs, & Google Maps used by PixelVault)
         $csp = "default-src 'self'; "
              . "script-src 'self' 'unsafe-inline' 'unsafe-eval' https://ajax.googleapis.com https://cdn.datatables.net https://cdnjs.cloudflare.com https://maps.googleapis.com; "
-             . "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.datatables.net; "
-             . "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com data:; "
+             . "style-src 'self' 'unsafe-inline' https://cdnjs.cloudflare.com https://fonts.googleapis.com https://cdn.datatables.net http://fonts.cdnfonts.com https://fonts.cdnfonts.com; "
+             . "font-src 'self' https://cdnjs.cloudflare.com https://fonts.gstatic.com http://fonts.cdnfonts.com https://fonts.cdnfonts.com data:; "
              . "img-src 'self' data: https:; "
              . "connect-src 'self' https://maps.googleapis.com; "
              . "frame-src 'self' https://maps.google.com https://www.google.com; "
