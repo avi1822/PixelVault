@@ -14,7 +14,7 @@ COPY vite.config.js ./
 RUN npm run build
 
 # Stage 2: Production PHP-FPM + Nginx Environment
-FROM php:8.2-fpm-alpine
+FROM php:8.1-fpm-alpine
 
 # Install system packages & PHP extensions (pdo_pgsql, pdo_sqlite, etc.)
 RUN apk add --no-cache \
