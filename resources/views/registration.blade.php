@@ -8,9 +8,9 @@
     <meta name="csrf-token" content="{{ csrf_token() }}">
     <title>PixelVault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
-    <link rel="stylesheet" href="{{asset('assets/css/registration_style.css')}}">
+    <link rel="stylesheet" href="/assets/css/registration_style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="{{asset('assets/js/reg_page.js')}}"></script>
+    <script src="/assets/js/reg_page.js"></script>
 </head>
 
 <body>

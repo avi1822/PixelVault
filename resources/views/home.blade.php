@@ -8,10 +8,10 @@
     <title>PixelVault</title>
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.2.0/css/all.min.css">
     <link href="https://fonts.googleapis.com/icon?family=Material+Icons" rel="stylesheet">
-    <link rel="stylesheet" href="{{asset('assets/css/home_style.css')}}">
+    <link rel="stylesheet" href="/assets/css/home_style.css">
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
-    <script src="{{asset('assets/js/jqFuwatto.umd.js')}}" defer></script>
-    <script src="{{asset('assets/js/home_page.js')}}"></script>
+    <script src="/assets/js/jqFuwatto.umd.js" defer></script>
+    <script src="/assets/js/home_page.js"></script>
     @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
