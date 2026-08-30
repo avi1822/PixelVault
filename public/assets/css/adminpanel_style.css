@@ -203,7 +203,7 @@ body {
     overflow-y: auto;
     padding-top: 5px;
     margin-bottom: 5%;
-    /* display: none; */
+    display: none;
 }
 .adminarea .container .admin .subcontainer2 .usersdata {
     width: 100%;
@@ -972,4 +972,22 @@ th {
 .save-visitor-btn:hover {
     transform: scale(1.03);
     background-color: var(--secondcA);
+}
+
+.adminarea .container .admin .subcontainer2 .analyticsdata {
+    width: 100%;
+    height: 100%;
+    overflow-y: auto;
+    padding-top: 5px;
+    display: block;
+}
+
+.adminarea .container .admin .subcontainer2 .messagesdata {
+    width: 100%;
+    height: 90%;
+    margin-top: 2%;
+    overflow-y: auto;
+    padding-top: 5px;
+    margin-bottom: 5%;
+    display: none;
 }

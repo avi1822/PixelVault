@@ -31,7 +31,7 @@ function createHomePc() {
         }
     });
 }
-var currentZone = 'pc';
+var currentZone = 'ground';
 function cratePc(zone) {
     if (!zone) zone = currentZone;
     currentZone = zone;
@@ -41,23 +41,31 @@ function cratePc(zone) {
         url: "/computer/view",
         success: function (response) {
             $(".adminarea .computersdata .pcselector .pclist").html("");
-            let filtered = response;
-            if (zone === 'ps5') {
-                filtered = response.slice(0, 5);
+            let filtered = [];
+            if (zone === 'upper') {
+                // Upper Floor Special Edition PS5 (Station #3)
+                filtered = response.filter(item => item.cid == 3);
+            } else {
+                // Ground Floor PS5 Consoles (Station #1 & #2)
+                filtered = response.filter(item => item.cid == 1 || item.cid == 2);
             }
+
             for (var i in filtered) {
-                let labelText = (zone === 'ps5') ? `PS5 - 0${parseInt(i)+1}` : `PC - ${filtered[i].cid}`;
+                let cid = filtered[i].cid;
+                let labelText = (cid == 3) 
+                    ? `✨ Upper Floor VIP PS5 #3 (Ghost of Yōtei Edition + Cloud Lights)` 
+                    : `🎮 Ground Floor PS5 #${cid}`;
+                let imgUrl = (cid == 3) ? '/assets/img/ps5_ghost_yotei.jpg' : '/assets/img/ps5_ground.jpg';
+
                 $(".adminarea .computersdata .pcselector .pclist").append(`
-                <input type="radio" name="computer" value="${filtered[i].cid}" id="pc${filtered[i].cid}" ${(i == 0) ? 'checked' : ''}>
-                <label for="pc${filtered[i].cid}" id="pcl${filtered[i].cid}" class="pccard">
-                                <div class="pccardimg"></div>
-                                <div class="text">${labelText}</div>
+                <input type="radio" name="computer" value="${cid}" id="pc${cid}" ${(i == 0) ? 'checked' : ''}>
+                <label for="pc${cid}" id="pcl${cid}" class="pccard" style="min-width: 220px; padding: 12px;">
+                    <div class="pccardimg" style="background-image: url('${imgUrl}'); background-size: contain; background-repeat: no-repeat; background-position: center; height: 100px;"></div>
+                    <div class="text" style="font-weight: bold; margin-top: 8px;">${labelText}</div>
                 </label>
                 `);
             }
-            for (var i = 0; i < 2; i++) {
-                $(".adminarea .computersdata .pcselector .pclist").append('<div class="dumy"></div>');
-            }
+
             $('.adminarea .computersdata .pcselector .pclist input[name="computer"]').on("change", function () {
                 displayPcDetails($(this).val());
             });
@@ -77,22 +85,29 @@ function displayPcDetails(cid) {
         data: { "cid": cid },
         dataType: "json",
         success: function (response) {
+            let heroImg = (cid == 3) ? '/assets/img/ps5_ghost_yotei.jpg' : '/assets/img/ps5_ground.jpg';
+            $(".adminarea .subcontainer2 .computersdata .pc .pcimg").css({
+                'background-image': `url('${heroImg}')`,
+                'background-size': 'contain',
+                'background-repeat': 'no-repeat',
+                'background-position': 'center'
+            });
+
             $("#pcspecul").html(`
-            <li>${response[0].spec1}</li>
-            <li>${response[0].spec2}</li>
-            <li>${response[0].spec3}</li>
-            <li>${response[0].spec4}</li>
-            <li>${response[0].spec5}</li>
-            <li>${response[0].spec6}</li>
-            <li>${response[0].spec7}</li>
+            <li>🎮 Console: Sony PlayStation 5 (4K 120Hz HDR)</li>
+            <li>⚡ Controllers: DualSense Wireless Controllers</li>
+            <li>🎧 Headset: Tempest 3D Audio Surround Sound</li>
+            <li>📺 Display: 55" 4K 120Hz OLED Gaming Screen</li>
+            <li>✨ Environment: ${cid == 3 ? 'VIP Cloud Ambient Lighting Suite' : 'Ground Floor Gaming Arena'}</li>
             `);
-            $("#computername").html(`PC - ${cid}`);
+
+            let titleStr = (cid == 3) ? `✨ Upper Floor Special Edition VIP PS5 #3` : `🎮 Ground Floor PS5 #${cid}`;
+            $("#computername").html(titleStr);
             $(".adminarea .container .subcontainer2 .computersdata .pc .gamelist").html("");
             response[0].games.forEach(game => {
                 $(".adminarea .container .subcontainer2 .computersdata .pc .gamelist").append(`<div class="game">
                 <div class="gameimg">
-                    <img src="${game.path}"
-                        alt="">
+                    <img src="${game.path}" alt="">
                 </div>
                 <div class="gamename">${game.name}</div>
             </div>`);
@@ -193,13 +208,22 @@ function createPackage() {
         type: "get",
         url: "/package/viewall",
         success: function (response) {
+            $(".pcbookarea .detail .pkg .pkglist").empty();
+            let selectedCid = $("input[name='computer']:checked").val() || selectedpc || 1;
+            let isUpper = (selectedCid == 3);
+
             for (var i in response) {
-                let pkgtime = response[i].package_time
+                let pkgtime = response[i].package_time;
+                let gPrice = response[i].ground_floor_price || (pkgtime * 99);
+                let uPrice = response[i].upper_floor_price || (pkgtime * 120);
+                let displayPrice = isUpper ? uPrice : gPrice;
+                let floorLabel = isUpper ? '✨ Upper Floor VIP' : '🎮 Ground Floor';
+
                 $(".pcbookarea .detail .pkg .pkglist").append(`
                 <input type="radio" name="mainpkg" value="${response[i].package_id}" id="pkg${response[i].package_id}">
                 <label for="pkg${response[i].package_id}" class="pkgt">
                     <div class="pkgname">${response[i].package_name}</div>
-                    <div class="details">${pkgtime}${(pkgtime == 1) ? "hour" : "hours"} - Rs${response[i].package_price}</div>
+                    <div class="details">${pkgtime} ${(pkgtime == 1) ? "hour" : "hours"} - <strong style="color: var(--secondc);">Rs. ${displayPrice}</strong> (${floorLabel})</div>
                 </label>`);
             }
             $('.pcbookarea .detail .pkg .pkglist input[name="mainpkg"]').on("change", function () {
@@ -241,12 +265,14 @@ function createTimeSolts(pkgTime, availableTimes, isFullDayAvailable) {
         if (isAvailable) {
             $(".pcbookarea .container .detail .time .timelist").append(`
                 <input type="radio" name="timeslot" value="${i}" id="tsid${i}">
-                <label for="tsid${i}" class="timecard" style="border: 1px solid #51cf66; color: #51cf66;">🟢 ${i}:00 - ${i + pkgTime}:00</label>
+                <label for="tsid${i}" class="timecard" style="border: 1px solid #51cf66; color: #51cf66; cursor: pointer;">🟢 ${i}:00 - ${i + pkgTime}:00</label>
             `);
         } else {
             $(".pcbookarea .container .detail .time .timelist").append(`
-                <input type="radio" name="timeslot" value="${i}" id="tsid${i}" disabled>
-                <label for="tsid${i}" class="timecard" style="border: 1px solid #ff6b6b; color: #ff6b6b; opacity: 0.6; cursor: not-allowed;">🔴 BOOKED (${i}:00 - ${i + pkgTime}:00)</label>
+                <input type="radio" name="timeslot" value="${i}" id="tsid${i}" disabled style="display:none;">
+                <label class="timecard booked-slot" style="border: 1px solid #5c2020; color: #888; background-color: rgba(255, 107, 107, 0.08); opacity: 0.5; cursor: not-allowed; text-decoration: line-through; pointer-events: none;">
+                    🔴 BOOKED (${i}:00 - ${i + pkgTime}:00)
+                </label>
             `);
         }
     }
@@ -351,16 +377,18 @@ $(document).ready(function () {
     crategames(1);
     createPackage();
 
-    $('#btnZonePC').on('click', function () {
+    $(document).on('click', '#btnZoneGround', function (e) {
+        e.preventDefault();
         $('.zone-btn').css({ background: 'var(--bgcolor3)', color: '#fff', border: '1px solid var(--secondc)' });
         $(this).css({ background: 'var(--secondc)', color: 'var(--bgcolor)', border: 'none' });
-        cratePc('pc');
+        cratePc('ground');
     });
 
-    $('#btnZonePS5').on('click', function () {
+    $(document).on('click', '#btnZoneUpper', function (e) {
+        e.preventDefault();
         $('.zone-btn').css({ background: 'var(--bgcolor3)', color: '#fff', border: '1px solid var(--secondc)' });
         $(this).css({ background: 'var(--secondc)', color: 'var(--bgcolor)', border: 'none' });
-        cratePc('ps5');
+        cratePc('upper');
     });
     $(".logo").on("click", function () {
         $("#mainsubcontainer").toggleClass("subcontainerwidth");
@@ -420,12 +448,21 @@ $(document).ready(function () {
         }
     });
     $("#booknowbtn").on("click", function () {
-        $(".computersdata .pc").hide();
+        var cid = $("input[name='computer']:checked").val() || selectedpc || 1;
+        var stName = (cid == 3) ? "✨ Upper Floor VIP PS5 #3 (Ghost of Yōtei Edition)" : `🎮 Ground Floor PS5 #${cid}`;
+        var imgUrl = (cid == 3) ? '/assets/img/ps5_ghost_yotei.jpg' : '/assets/img/ps5_ground.jpg';
+
+        createPackage();
         $(".pcbookarea").show();
-        $(".pcbookarea .container .detail .pc .pcname").html(`pc - ${$("input[name='computer']:checked").val()}`);
+        $(".pcbookarea .container .detail .pc .pcname").html(stName);
+        $(".pcbookarea .container .detail .pc .pcimg").css({
+            'background-image': `url('${imgUrl}')`,
+            'background-size': 'contain',
+            'background-repeat': 'no-repeat',
+            'background-position': 'center'
+        });
     });
     $("#closebtn").on("click", function () {
-        $(".computersdata .pc").show();
         $(".pcbookarea").hide();
     });
     $('.adminarea .subcontainer2 .settingsdata .propiclist input[type="radio"]').on("change", function () {
@@ -734,4 +771,66 @@ $(document).on('click', '.btn-order-snack', function () {
             }
         });
     }
+});
+
+/* Live Session Status Tracker for Customer Dashboard */
+function checkMyActiveSession() {
+    $.ajax({
+        type: "GET",
+        url: "/session/my-active",
+        dataType: "json",
+        success: function (res) {
+            var card = $('#userActiveSessionCard');
+            if (!res.has_active_session) {
+                card.hide().empty();
+                return;
+            }
+
+            var remMins = Math.floor(res.remaining_seconds / 60);
+            var remSecs = res.remaining_seconds % 60;
+            var timeStr = `${remMins}m ${remSecs}s`;
+
+            var isWarning = res.is_10mins_warning;
+            var isExpired = res.is_expired;
+
+            var borderCol = isExpired ? '#ff6b6b' : (isWarning ? '#ff922b' : 'var(--secondc)');
+            var badgeText = isExpired ? '🔴 SESSION EXPIRED' : (isWarning ? '⚠️ 10 MINS REMAINING!' : '🟢 SESSION LIVE');
+            var bgTint = isWarning ? 'rgba(255, 146, 43, 0.15)' : 'rgba(168, 85, 247, 0.1)';
+
+            card.css({
+                display: 'block',
+                borderColor: borderCol,
+                background: bgTint
+            }).html(`
+                <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 10px;">
+                    <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-gamepad"></i> Your Active Gaming Session</h3>
+                    <span style="background: ${borderCol}; color: #000; padding: 4px 12px; border-radius: 20px; font-weight: bold; font-size: 0.85rem;">${badgeText}</span>
+                </div>
+                <div style="display: grid; grid-template-columns: repeat(auto-fit, minmax(160px, 1fr)); gap: 15px; margin-top: 10px;">
+                    <div>
+                        <div style="font-size: 0.8rem; color: #aaa;">Station</div>
+                        <div style="font-size: 1.2rem; font-weight: bold;">${res.station_name}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: #aaa;">Started At</div>
+                        <div style="font-size: 1.1rem; color: #fff;">${new Date(res.started_at).toLocaleTimeString()}</div>
+                    </div>
+                    <div>
+                        <div style="font-size: 0.8rem; color: #aaa;">Time Remaining</div>
+                        <div style="font-size: 1.4rem; font-weight: bold; color: ${isExpired ? '#ff6b6b' : (isWarning ? '#ff922b' : '#339af0')};">
+                            ⏱ ${isExpired ? '00m 00s' : timeStr}
+                        </div>
+                    </div>
+                </div>
+                ${isWarning ? `<div style="margin-top: 12px; color: #ff922b; font-weight: bold; text-align: center; font-size: 0.95rem;">
+                    ⚠️ Your gaming session is ending in less than 10 minutes! Please wrap up your game or request an extension from the admin.
+                </div>` : ''}
+            `);
+        }
+    });
+}
+
+$(document).ready(function () {
+    checkMyActiveSession();
+    setInterval(checkMyActiveSession, 5000);
 });

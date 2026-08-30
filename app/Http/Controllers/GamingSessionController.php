@@ -11,7 +11,7 @@ use App\Models\Reservation;
 use App\Models\Computer;
 use App\Models\Package;
 use App\Models\User;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 
 class GamingSessionController extends Controller
 {
@@ -195,6 +195,33 @@ class GamingSessionController extends Controller
             // Automatically generate historical invoice for this completed session
             $invoice = \App\Http\Controllers\BillingController::createInvoiceForSession($session);
 
+            // Automatically submit entry into Daily Visitor Register
+            $customerName = 'Guest';
+            $phone = '';
+            if ($session->user) {
+                $customerName = $session->user->first_name . ' ' . $session->user->last_name;
+                $phone = $session->user->phone_number ?? '';
+            } else if (!empty($session->notes)) {
+                $customerName = str_replace('Walk-in Session for ', '', $session->notes);
+            }
+
+            $zone = ($session->station_id == 3) ? 'Upper Floor (PS5 VIP Cloud Edition)' : 'Ground Floor (PS5 Standard)';
+            $rate = ($session->station_id == 3) ? 120 : 99;
+            $hoursPlayed = max(1, (int) round($actualDurationMinutes / 60));
+            $foodItem = $request->food_item ?? 'None';
+            $totalAmount = ($hoursPlayed * $rate);
+
+            \App\Models\VisitorEntry::create([
+                'visitor_name' => $customerName,
+                'phone_number' => $phone,
+                'hours_played' => $hoursPlayed,
+                'game_played'  => 'AAA Gaming',
+                'food_item'    => $foodItem,
+                'zone_location'=> $zone,
+                'total_amount' => $totalAmount,
+                'entry_date'   => date('Y-m-d')
+            ]);
+
             // Restore station status: check if upcoming reservations exist today
             $stationId = $session->station_id;
             $hasUpcomingRes = Reservation::where('computer_id', $stationId)
@@ -210,7 +237,7 @@ class GamingSessionController extends Controller
 
             return response()->json([
                 'success' => true,
-                'message' => 'Session #' . $session->id . ' completed! Total duration: ' . $actualDurationMinutes . ' mins.',
+                'message' => 'Session #' . $session->id . ' completed & automatically logged into Daily Visitor Register! Total duration: ' . $actualDurationMinutes . ' mins.',
                 'session' => $session
             ]);
         });
@@ -239,6 +266,49 @@ class GamingSessionController extends Controller
     }
 
     /**
+     * Get active session for currently logged-in customer.
+     */
+    public function myActiveSession()
+    {
+        $userId = Auth::id();
+        $sess = GamingSession::with(['computer', 'reservation'])
+            ->where('user_id', $userId)
+            ->where('status', 'ACTIVE')
+            ->latest()
+            ->first();
+
+        if (!$sess) {
+            return response()->json(['has_active_session' => false]);
+        }
+
+        $now = now();
+        $expectedEnd = \Carbon\Carbon::parse($sess->expected_end_at);
+        $remainingSeconds = max(0, $now->diffInSeconds($expectedEnd, false));
+        $isExpired = ($remainingSeconds <= 0);
+        $is10MinsWarning = ($remainingSeconds > 0 && $remainingSeconds <= 600);
+
+        $stName = '';
+        if ($sess->station_id == 3) {
+            $stName = '✨ Upper Floor VIP PS5 #3 (Cloud Lights)';
+        } else if ($sess->station_id == 1 || $sess->station_id == 2) {
+            $stName = '🎮 Ground Floor PS5 #' . $sess->station_id;
+        } else {
+            $stName = '💻 PC Rig #' . $sess->station_id;
+        }
+
+        return response()->json([
+            'has_active_session' => true,
+            'session_id' => $sess->id,
+            'station_name' => $stName,
+            'started_at' => $sess->started_at,
+            'expected_end_at' => $sess->expected_end_at,
+            'remaining_seconds' => $remainingSeconds,
+            'is_expired' => $isExpired,
+            'is_10mins_warning' => $is10MinsWarning
+        ]);
+    }
+
+    /**
      * Yajra Datatables query for Session History.
      */
     public function anyData()
@@ -246,7 +316,7 @@ class GamingSessionController extends Controller
         $sessions = GamingSession::with(['user', 'computer', 'reservation'])
             ->select('gaming_sessions.*');
 
-        return Datatables::of($sessions)
+        return DataTables::of($sessions)
             ->addColumn('customer_name', function ($sess) {
                 if ($sess->user) {
                     return $sess->user->first_name . ' ' . $sess->user->last_name;

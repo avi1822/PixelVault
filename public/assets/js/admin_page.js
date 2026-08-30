@@ -1,6 +1,7 @@
 var selectedpc;
 var gameid;
 var gamearray = [];
+var messagesTable;
 
 var currentStatusFilter = "";
 
@@ -55,7 +56,14 @@ function displayPcDetails(cid) {
                 $("#pcspec7").val(response[0].spec7);
                 let st = response[0].status || 'AVAILABLE';
                 $("#stationStatusSelect").val(st);
-                let labelText = (cid <= 5) ? `PS5 Lounge #${cid}` : `PC Arena #${cid}`;
+                let labelText = '';
+                if (cid == 3) {
+                    labelText = `✨ Upper Floor VIP PS5 #3 (Cloud Lights)`;
+                } else if (cid == 1 || cid == 2) {
+                    labelText = `🎮 Ground Floor PS5 #${cid}`;
+                } else {
+                    labelText = `💻 PC Rig #${cid}`;
+                }
                 $("#computername").html(`${labelText} (${st})`);
 
                 gamearray = [];
@@ -94,9 +102,13 @@ function checkPack() {
             dataType: "json",
             success: function (response) {
                 console.log(response);
-                $("#packname").val(response[0].package_name);
-                $("#packtime").val(response[0].package_time);
-                $("#packprice").val(response[0].package_price);
+                if (response.length > 0) {
+                    $("#packname").val(response[0].package_name);
+                    $("#packtime").val(response[0].package_time);
+                    $("#packgroundprice").val(response[0].ground_floor_price || (response[0].package_time * 99));
+                    $("#packupperprice").val(response[0].upper_floor_price || (response[0].package_time * 120));
+                    $("#packprice").val(response[0].package_price);
+                }
                 $(".loadercontainer").hide();
             }
         });
@@ -108,13 +120,20 @@ function createPackage() {
         type: "get",
         url: "/package/viewall",
         success: function (response) {
+            $(".adminarea .container .admin .subcontainer2 .packagesdata .con .pkg .pkglist").empty();
             for (var i in response) {
                 let pkgtime = response[i].package_time;
+                let gPrice = response[i].ground_floor_price || (pkgtime * 99);
+                let uPrice = response[i].upper_floor_price || (pkgtime * 120);
+
                 $(".adminarea .container .admin .subcontainer2 .packagesdata .con .pkg .pkglist").append(`
                 <input type="radio" name="mainpkg" value="${response[i].package_id}" id="pkg${response[i].package_id}">
-                <label for="pkg${response[i].package_id}" class="pkgt">
-                    <div class="pkgname">${response[i].package_name}</div>
-                    <div class="details">${pkgtime}${(pkgtime == 1) ? "hour" : "hours"} - Rs${response[i].package_price}</div>
+                <label for="pkg${response[i].package_id}" class="pkgt" style="margin-bottom: 10px; padding: 10px; border-radius: 8px;">
+                    <div class="pkgname" style="font-weight: bold; color: var(--secondc);">${response[i].package_name}</div>
+                    <div class="details" style="font-size: 0.85rem; color: #fff;">
+                        ⏱ ${pkgtime} ${(pkgtime == 1) ? "hour" : "hours"}<br>
+                        🎮 Ground Floor: <strong>Rs. ${gPrice}</strong> | ✨ Upper Floor VIP: <strong>Rs. ${uPrice}</strong>
+                    </div>
                 </label>`);
             }
             checkPack();
@@ -158,6 +177,9 @@ $(document).ready(function () {
     createPackage();
     createProPics();
     updateStationCounts();
+    loadExecutiveDashboard();
+    updateUnreadMessageBadge();
+    setInterval(updateUnreadMessageBadge, 15000);
     $.ajaxSetup({
         headers: {
             'X-CSRF-TOKEN': $('meta[name="csrf-token"]').attr('content')
@@ -231,7 +253,11 @@ $(document).ready(function () {
         $(".subcontainer2 .inventorydata").hide();
         $(".subcontainer2 .analyticsdata").hide();
         $(".subcontainer2 .messagesdata").hide();
-        $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
+        if (caption === "Messages") {
+            $(".subcontainer2 .messagesdata").show();
+        } else {
+            $(`.subcontainer2 .${caption.toString().toLowerCase()}data`).show();
+        }
         if (caption === "Visitors") {
             populateVisitorGames();
             loadVisitorAnalytics();
@@ -247,8 +273,12 @@ $(document).ready(function () {
             if (typeof inventoryTable !== 'undefined') inventoryTable.draw();
         } else if (caption === "Analytics") {
             loadExecutiveDashboard();
+        } else if (caption === "users" || caption === "Users") {
+            if (typeof userTable !== 'undefined') userTable.draw();
         } else if (caption === "Messages") {
-            if (typeof messagesTable !== 'undefined') messagesTable.draw();
+            if (typeof messagesTable !== 'undefined') {
+                messagesTable.columns.adjust().draw();
+            }
         }
     });
     $(".computersdata .con2 .exp").on("click", function () {
@@ -448,16 +478,26 @@ $(document).ready(function () {
         var packid = $(".adminarea .subcontainer2 .packagesdata .pkg .pkglist input[name='mainpkg']:checked").val();
         var packname = $("#packname").val();
         var packtime = $("#packtime").val();
+        var packgroundprice = $("#packgroundprice").val();
+        var packupperprice = $("#packupperprice").val();
         var packprice = $("#packprice").val();
+
         $.ajax({
             type: "post",
             url: "/package/update",
-            data: { "packid": packid, "packname": packname, "packtime": packtime, "packprice": packprice },
+            data: { 
+                "packid": packid, 
+                "packname": packname, 
+                "packtime": packtime, 
+                "ground_floor_price": packgroundprice,
+                "upper_floor_price": packupperprice,
+                "packprice": packprice 
+            },
             dataType: "json",
             success: function (response) {
                 if (response.success) {
                     $(`.pkglist label[for=pkg${packid}] .pkgname`).html(packname);
-                    $(`.pkglist label[for=pkg${packid}] .details`).html(`${packtime}${(packtime == 1) ? "hour" : "hours"} - Rs${packprice}`);
+                    $(`.pkglist label[for=pkg${packid}] .details`).html(`⏱ ${packtime} ${(packtime == 1) ? "hour" : "hours"}<br>🎮 Ground Floor: <strong>Rs. ${packgroundprice}</strong> | ✨ Upper Floor VIP: <strong>Rs. ${packupperprice}</strong>`);
                 } else {
                     let mg = response.message;
                     $("#packnameerror").html("packname" in mg ? mg.packname[0] : "");
@@ -473,21 +513,36 @@ $(document).ready(function () {
         $(".loadercontainer").show();
         var packname = $("#packname").val();
         var packtime = $("#packtime").val();
+        var packgroundprice = $("#packgroundprice").val();
+        var packupperprice = $("#packupperprice").val();
         var packprice = $("#packprice").val();
+
         $.ajax({
             type: "post",
             url: "/package/store",
-            data: { "packname": packname, "packtime": packtime, "packprice": packprice },
+            data: { 
+                "packname": packname, 
+                "packtime": packtime, 
+                "ground_floor_price": packgroundprice,
+                "upper_floor_price": packupperprice,
+                "packprice": packprice 
+            },
             dataType: "json",
             success: function (response) {
                 console.log(response);
                 if (response.success) {
                     let pkgtime = response.package_time;
+                    let gPrice = response.ground_floor_price;
+                    let uPrice = response.upper_floor_price;
+
                     $(".adminarea .container .admin .subcontainer2 .packagesdata .con .pkg .pkglist").append(`
                         <input type="radio" name="mainpkg" value="${response.package_id}" id="pkg${response.package_id}">
-                        <label for="pkg${response.package_id}" class="pkgt">
-                        <div class="pkgname">${response.package_name}</div>
-                        <div class="details">${pkgtime}${(pkgtime == 1) ? "hour" : "hours"} - Rs${response.package_price}</div>
+                        <label for="pkg${response.package_id}" class="pkgt" style="margin-bottom: 10px; padding: 10px; border-radius: 8px;">
+                        <div class="pkgname" style="font-weight: bold; color: var(--secondc);">${response.package_name}</div>
+                        <div class="details" style="font-size: 0.85rem; color: #fff;">
+                            ⏱ ${pkgtime} ${(pkgtime == 1) ? "hour" : "hours"}<br>
+                            🎮 Ground Floor: <strong>Rs. ${gPrice}</strong> | ✨ Upper Floor VIP: <strong>Rs. ${uPrice}</strong>
+                        </div>
                     </label>`);
                 } else {
                     let mg = response.message;
@@ -571,11 +626,11 @@ $(document).ready(function () {
         ajax: "/reservation/anydata",
         columns: [
             { data: 'id', name: 'id' },
-            { data: 'user_name', name: 'user_name' },
+            { data: 'customer_name', name: 'customer_name' },
             { data: 'date', name: 'date' },
             { data: 'time', name: 'time' },
-            { data: 'computer_id', name: 'computer_id' },
-            { data: 'package_id', name: 'package_id' },
+            { data: 'station_name', name: 'station_name' },
+            { data: 'package_name', name: 'package_name' },
             {
                 data: 'id',
                 render: function (data, type, row) {
@@ -701,6 +756,36 @@ $(document).ready(function () {
             { data: 'email', name: 'email' },
         ]
     });
+    messagesTable = $('#messagesTable').DataTable({
+        processing: true,
+        serverSide: true,
+        ajax: '/contact/anydata',
+        columns: [
+            { data: 'id', name: 'id' },
+            { data: 'name', name: 'name' },
+            { data: 'email', name: 'email' },
+            { data: 'subject', name: 'subject', defaultContent: '<em>No Subject</em>' },
+            { data: 'message', name: 'message' },
+            {
+                data: 'status',
+                name: 'status',
+                render: function (data) {
+                    if (data === 'UNREAD') {
+                        return '<span style="background:#ff6b6b; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8rem;">UNREAD</span>';
+                    }
+                    return '<span style="background:#339af0; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8rem;">READ</span>';
+                }
+            },
+            {
+                data: 'created_at',
+                name: 'created_at',
+                render: function (data) {
+                    return new Date(data).toLocaleString();
+                }
+            },
+            { data: 'action', name: 'action', orderable: false, searchable: false }
+        ]
+    });
     var gamedataTable = $('#gamedataTable').DataTable({
         processing: true,
         serverSide: true,
@@ -757,6 +842,19 @@ $(document).ready(function () {
             { data: 'food_item', name: 'food_item' },
             { data: 'zone_location', name: 'zone_location' },
             {
+                data: 'total_amount',
+                name: 'total_amount',
+                render: function (data, type, row) {
+                    let amt = parseFloat(data);
+                    if (isNaN(amt) || amt <= 0) {
+                        let hours = parseInt(row.hours_played) || 1;
+                        let rate = (row.zone_location && row.zone_location.indexOf('Upper Floor') !== -1) ? 120 : 99;
+                        amt = hours * rate;
+                    }
+                    return `<strong style="color: #51cf66;">Rs. ${amt}</strong>`;
+                }
+            },
+            {
                 data: 'id',
                 render: function (data) {
                     return `<button class="del-visitor-btn" data-id="${data}" style="background:#d9534f; color:#fff; border:none; padding:5px 10px; border-radius:4px; cursor:pointer;">Delete</button>`;
@@ -779,12 +877,36 @@ $(document).ready(function () {
         loadVisitorAnalytics();
     });
 
+    function updateVisitorCalculatedAmount() {
+        var zone = $('#v_zone').val() || '';
+        var hours = parseInt($('#v_hours').val()) || 1;
+        var rate = (zone.indexOf('Upper Floor') !== -1) ? 120 : 99;
+        var total = rate * hours;
+        $('#v_total_amount_box').text('Rs. ' + total + ' (' + hours + ' hr' + (hours > 1 ? 's' : '') + ' @ Rs. ' + rate + '/hr)');
+    }
+
+    $('#v_zone, #v_hours').on('change', function () {
+        updateVisitorCalculatedAmount();
+    });
+
+    updateVisitorCalculatedAmount();
+
     $('#saveVisitorBtn').on('click', function () {
-        var vName = $('#v_name').val();
+        var vName = $('#v_name').val().trim();
+        var vPhone = $('#v_phone').val().trim();
         var vDate = $('#v_date').val();
+
         if (!vName || !vDate) {
             $('#v_form_msg').html('<span style="color:#ff6b6b;">Please fill in Visitor Name and Date!</span>');
             return;
+        }
+
+        if (vPhone !== '') {
+            var phoneRegex = /^[6-9]\d{9}$/;
+            if (!phoneRegex.test(vPhone)) {
+                $('#v_form_msg').html('<span style="color:#ff6b6b;">Invalid phone number! Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.</span>');
+                return;
+            }
         }
         $(".loadercontainer").show();
         $.ajax({
@@ -844,6 +966,7 @@ function populateVisitorGames() {
             for (var i in response) {
                 $("#v_game").append(`<option value="${response[i].name}">${response[i].name}</option>`);
             }
+            $("#v_game").append('<option value="Other">🎮 Other / Custom Game</option>');
         }
     });
 }
@@ -905,27 +1028,42 @@ function loadActiveSessions() {
                 return;
             }
             res.forEach(sess => {
-                let stName = (sess.station_id <= 5) ? `🎮 PS5 Lounge #${sess.station_id}` : `💻 PC Arena #${sess.station_id}`;
+                let stName = '';
+                if (sess.station_id == 3) {
+                    stName = `✨ Upper Floor VIP PS5 #3 (Cloud Lights)`;
+                } else if (sess.station_id == 1 || sess.station_id == 2) {
+                    stName = `🎮 Ground Floor PS5 #${sess.station_id}`;
+                } else {
+                    stName = `💻 PC Rig #${sess.station_id}`;
+                }
                 let custName = sess.user ? (sess.user.first_name + ' ' + sess.user.last_name) : (sess.notes || 'Guest');
                 let remMins = Math.floor(sess.remaining_seconds / 60);
                 let remSecs = sess.remaining_seconds % 60;
                 let timeStr = `${remMins}m ${remSecs}s`;
                 let isExpired = sess.is_expired;
 
+                let is10MinsWarning = (sess.remaining_seconds > 0 && sess.remaining_seconds <= 600);
+                let borderCol = isExpired ? '#ff6b6b' : (is10MinsWarning ? '#ff922b' : 'var(--secondc)');
+                let statusBadge = isExpired
+                    ? '<span style="background: #ff6b6b; color: #fff; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold;">● EXPIRED</span>'
+                    : (is10MinsWarning
+                        ? '<span style="background: #ff922b; color: #000; padding: 2px 8px; border-radius: 12px; font-size: 0.8rem; font-weight: bold; animation: pulse 1s infinite;">⚠️ 10 MINS LEFT</span>'
+                        : '<span style="color: #51cf66; font-size: 0.85rem;">● ACTIVE</span>');
+
                 $("#activeSessionsGrid").append(`
-                    <div style="background: var(--bgcolor3); border: 1px solid ${isExpired ? '#ff6b6b' : 'var(--secondc)'}; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 8px;">
-                        <div style="font-weight: bold; font-size: 1.1rem; color: var(--secondc); display: flex; justify-content: space-between;">
+                    <div style="background: var(--bgcolor3); border: 2px solid ${borderCol}; border-radius: 8px; padding: 15px; display: flex; flex-direction: column; gap: 8px;">
+                        <div style="font-weight: bold; font-size: 1.1rem; color: var(--secondc); display: flex; justify-content: space-between; align-items: center;">
                             <span>${stName}</span>
-                            <span style="color: ${isExpired ? '#ff6b6b' : '#51cf66'}; font-size: 0.85rem;">● ${isExpired ? 'EXPIRED' : 'ACTIVE'}</span>
+                            ${statusBadge}
                         </div>
                         <div style="font-size: 0.95rem; color: #fff;"><strong>Customer:</strong> ${custName}</div>
                         <div style="font-size: 0.85rem; color: #aaa;"><strong>Started:</strong> ${new Date(sess.started_at).toLocaleTimeString()}</div>
                         <div style="font-size: 0.85rem; color: #aaa;"><strong>Expected End:</strong> ${new Date(sess.expected_end_at).toLocaleTimeString()}</div>
-                        <div style="font-size: 1.1rem; font-weight: bold; color: ${isExpired ? '#ff6b6b' : '#339af0'}; margin: 5px 0;">
+                        <div style="font-size: 1.1rem; font-weight: bold; color: ${isExpired ? '#ff6b6b' : (is10MinsWarning ? '#ff922b' : '#339af0')}; margin: 5px 0;">
                             ⏱ ${isExpired ? 'TIME EXPIRED' : timeStr + ' REMAINING'}
                         </div>
-                        <button class="btn-end-session" data-session-id="${sess.id}" style="background: #ff6b6b; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">
-                            ⏹ End Gaming Session
+                        <button class="btn-end-session" data-session-id="${sess.id}" data-customer="${custName}" data-station="${stName}" data-duration="${sess.duration_minutes} mins" style="background: #ff6b6b; color: #fff; border: none; padding: 8px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">
+                            ⏹ End & Log Session
                         </button>
                     </div>
                 `);
@@ -962,28 +1100,57 @@ $(document).on('click', '.btn-start-session', function () {
 
 $(document).on('click', '.btn-end-session', function () {
     var sessId = $(this).data('session-id');
-    if (confirm("Are you sure you want to END Gaming Session #" + sessId + "?")) {
-        $(".loadercontainer").show();
-        $.ajax({
-            type: "POST",
-            url: "/session/end",
-            data: { session_id: sessId },
-            dataType: "json",
-            success: function (res) {
-                $(".loadercontainer").hide();
-                alert(res.message);
-                updateStationCounts();
-                loadActiveSessions();
-                if (typeof sessionHistoryTable !== 'undefined') sessionHistoryTable.draw();
-            },
-            error: function (xhr) {
-                $(".loadercontainer").hide();
-                let msg = "Failed to end session.";
-                if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
-                alert(msg);
+    var custName = $(this).data('customer');
+    var stName = $(this).data('station');
+    var duration = $(this).data('duration');
+
+    $('#end_session_id').val(sessId);
+    $('#end_sess_customer').text(custName);
+    $('#end_sess_station').text(stName);
+    $('#end_sess_duration').text(duration);
+    $('#end_sess_food').val('None');
+    $('#end_sess_msg').html('');
+
+    $('#endSessionModal').css('display', 'flex');
+});
+
+$('#closeEndSessionModal').on('click', function () {
+    $('#endSessionModal').hide();
+});
+
+$('#btnConfirmEndSession').on('click', function () {
+    var sessId = $('#end_session_id').val();
+    var foodItem = $('#end_sess_food').val();
+
+    $(".loadercontainer").show();
+    $.ajax({
+        type: "POST",
+        url: "/session/end",
+        data: {
+            session_id: sessId,
+            food_item: foodItem
+        },
+        dataType: "json",
+        success: function (res) {
+            $(".loadercontainer").hide();
+            if (res.success) {
+                $('#end_sess_msg').html('<span style="color:#51cf66;">Session completed & logged!</span>');
+                setTimeout(() => {
+                    $('#endSessionModal').hide();
+                    updateStationCounts();
+                    loadActiveSessions();
+                    if (typeof sessionHistoryTable !== 'undefined') sessionHistoryTable.draw();
+                    if (typeof visitorTable !== 'undefined') visitorTable.draw();
+                }, 1200);
             }
-        });
-    }
+        },
+        error: function (xhr) {
+            $(".loadercontainer").hide();
+            let msg = "Failed to end session.";
+            if (xhr.responseJSON && xhr.responseJSON.message) msg = xhr.responseJSON.message;
+            $('#end_sess_msg').html(`<span style="color:#ff6b6b;">${msg}</span>`);
+        }
+    });
 });
 
 $('#btnStartWalkInModal').on('click', function () {
@@ -1515,39 +1682,20 @@ $('#btnRefreshAnalytics').on('click', function () {
     loadExecutiveDashboard(analyticsStartDate, analyticsEndDate);
 });
 
-/* ============================================================
-   VISITOR CONTACT MESSAGES DATATABLE & MANAGEMENT
-   ============================================================ */
-var messagesTable = $('#messagesTable').DataTable({
-    processing: true,
-    serverSide: true,
-    ajax: '/contact/anydata',
-    columns: [
-        { data: 'id', name: 'id' },
-        { data: 'name', name: 'name' },
-        { data: 'email', name: 'email' },
-        { data: 'subject', name: 'subject', defaultContent: '<em>No Subject</em>' },
-        { data: 'message', name: 'message' },
-        {
-            data: 'status',
-            name: 'status',
-            render: function (data) {
-                if (data === 'UNREAD') {
-                    return '<span style="background:#ff6b6b; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8rem;">UNREAD</span>';
-                }
-                return '<span style="background:#339af0; color:#fff; padding:3px 8px; border-radius:12px; font-weight:bold; font-size:0.8rem;">READ</span>';
+function updateUnreadMessageBadge() {
+    $.ajax({
+        type: "GET",
+        url: "/contact/unreadcount",
+        dataType: "json",
+        success: function (res) {
+            if (res && res.unread_count > 0) {
+                $("#msgUnreadBadge").text(res.unread_count).show();
+            } else {
+                $("#msgUnreadBadge").hide();
             }
-        },
-        {
-            data: 'created_at',
-            name: 'created_at',
-            render: function (data) {
-                return new Date(data).toLocaleString();
-            }
-        },
-        { data: 'action', name: 'action', orderable: false, searchable: false }
-    ]
-});
+        }
+    });
+}
 
 $(document).on('click', '.btn-mark-read', function () {
     var id = $(this).data('id');
@@ -1561,6 +1709,7 @@ $(document).on('click', '.btn-mark-read', function () {
             $(".loadercontainer").hide();
             if (res.success) {
                 messagesTable.draw();
+                updateUnreadMessageBadge();
             }
         },
         error: function () {
@@ -1583,6 +1732,7 @@ $(document).on('click', '.btn-delete-msg', function () {
                 $(".loadercontainer").hide();
                 if (res.success) {
                     messagesTable.draw();
+                    updateUnreadMessageBadge();
                 }
             },
             error: function () {

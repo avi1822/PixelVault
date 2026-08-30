@@ -14,7 +14,7 @@ class DatabaseSeeder extends Seeder
      */
     public function run()
     {
-        // 1. Seed Admin & Standard Users
+        // 1. Seed Admin User
         \App\Models\User::updateOrCreate(
             ['user_name' => 'admin'],
             [
@@ -29,38 +29,6 @@ class DatabaseSeeder extends Seeder
                 'isadmin' => 1,
             ]
         );
-
-        \App\Models\User::updateOrCreate(
-            ['user_name' => 'user'],
-            [
-                'first_name' => 'John',
-                'last_name' => 'Doe',
-                'user_name' => 'user',
-                'phone_number' => '0787654321',
-                'address' => 'Gampaha',
-                'propic' => 2,
-                'email' => 'user@pixelvault.com',
-                'password' => \Hash::make('password123'),
-                'isadmin' => 0,
-            ]
-        );
-
-        for ($u = 1; $u <= 8; $u++) {
-            \App\Models\User::updateOrCreate(
-                ['user_name' => 'gamer_' . $u],
-                [
-                    'first_name' => 'Gamer',
-                    'last_name' => 'User ' . $u,
-                    'user_name' => 'gamer_' . $u,
-                    'phone_number' => '071000000' . $u,
-                    'address' => 'City Station ' . $u,
-                    'propic' => rand(1, 10),
-                    'email' => 'gamer' . $u . '@pixelvault.com',
-                    'password' => \Hash::make('password123'),
-                    'isadmin' => 0,
-                ]
-            );
-        }
 
         // 2. Seed Computers (30 Computers)
         for ($i = 1; $i <= 30; $i++) {
@@ -116,20 +84,5 @@ class DatabaseSeeder extends Seeder
             );
         }
 
-        // 5. Seed Reservations
-        for ($r = 1; $r <= 25; $r++) {
-            \App\Models\Reservation::updateOrCreate(
-                ['id' => $r],
-                [
-                    'user_id' => ($r % 2 == 0) ? 2 : 1,
-                    'user_name' => ($r % 2 == 0) ? 'user' : 'admin',
-                    'date' => date('Y-m-d', strtotime("+$r days")),
-                    'time' => '14:00 - 15:00',
-                    'computer_id' => rand(1, 30),
-                    'package_id' => rand(1, 3),
-                    'start_time' => 14,
-                ]
-            );
-        }
     }
 }

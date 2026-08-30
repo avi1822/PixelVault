@@ -6,6 +6,8 @@ use Illuminate\Http\Request;
 use App\Models\ContactMessage;
 use Illuminate\Support\Facades\Validator;
 
+use Yajra\DataTables\DataTables;
+
 class ContactMessageController extends Controller
 {
     /**
@@ -27,19 +29,21 @@ class ContactMessageController extends Controller
             ], 422);
         }
 
-        $msg = ContactMessage::create([
-            'name'    => $request->name,
-            'email'   => $request->email,
-            'subject' => $request->subject,
-            'message' => $request->message,
-            'status'  => 'UNREAD',
-        ]);
+        return \Illuminate\Support\Facades\DB::transaction(function () use ($request) {
+            $msg = ContactMessage::create([
+                'name'    => $request->name,
+                'email'   => $request->email,
+                'subject' => $request->subject,
+                'message' => $request->message,
+                'status'  => 'UNREAD',
+            ]);
 
-        return response()->json([
-            'success' => true,
-            'message' => 'Thank you! Your message has been sent successfully. Our team will get back to you shortly.',
-            'contact' => $msg
-        ]);
+            return response()->json([
+                'success' => true,
+                'message' => 'Thank you! Your message has been sent successfully. Our team will get back to you shortly.',
+                'contact' => $msg
+            ]);
+        });
     }
 
     /**
@@ -47,9 +51,18 @@ class ContactMessageController extends Controller
      */
     public function anyData()
     {
-        $messages = ContactMessage::orderBy('created_at', 'desc')->get();
+        $messages = ContactMessage::query();
 
-        return datatables()->of($messages)
+        return DataTables::of($messages)
+            ->editColumn('name', function ($row) {
+                return e($row->name);
+            })
+            ->editColumn('subject', function ($row) {
+                return e($row->subject);
+            })
+            ->editColumn('message', function ($row) {
+                return e($row->message);
+            })
             ->addColumn('action', function ($row) {
                 $statusBtn = ($row->status === 'UNREAD')
                     ? '<button class="btn-mark-read" data-id="' . $row->id . '" style="background:#51cf66; color:#000; border:none; padding:4px 10px; border-radius:4px; font-weight:bold; cursor:pointer; margin-right:5px;"><i class="fa-solid fa-check"></i> Mark Read</button>'
@@ -59,7 +72,7 @@ class ContactMessageController extends Controller
 
                 return $statusBtn . $deleteBtn;
             })
-            ->rawColumns(['action'])
+            ->rawColumns(['status', 'action'])
             ->make(true);
     }
 
@@ -93,5 +106,14 @@ class ContactMessageController extends Controller
             'success' => true,
             'message' => 'Message deleted successfully.'
         ]);
+    }
+
+    /**
+     * Get unread messages count for notification badge.
+     */
+    public function unreadCount()
+    {
+        $count = ContactMessage::where('status', 'UNREAD')->count();
+        return response()->json(['unread_count' => $count]);
     }
 }

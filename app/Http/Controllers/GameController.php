@@ -3,7 +3,7 @@
 namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 use App\Models\Game;
 use Storage;
 use DB;
@@ -12,7 +12,6 @@ use Validator;
 class GameController extends Controller
 {
     public function __construct(){
-        $this->middleware('auth');
     }
     
     public function store(Request $request){
@@ -100,7 +99,7 @@ class GameController extends Controller
 
     public function anydata(){
 
-        return Datatables::of(Game::query())->make(true);
+        return DataTables::of(Game::query())->make(true);
 
     }
     public function partofdata(){

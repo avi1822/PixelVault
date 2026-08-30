@@ -1,11 +1,12 @@
 .pcbookarea {
     width: 100vw;
     height: 100vh;
-    position: absolute;
+    position: fixed;
     top: 0;
     left: 0;
-    z-index: 2;
+    z-index: 9999;
     display: none;
+    background-color: var(--bgcolor);
 }
 
 .pcbookarea .container {

@@ -82,6 +82,9 @@
                     <div class="homedata">
                         <div class="datatcontainer">
                             <div class="hdsubcontainer">
+                                <!-- User Live Gaming Session Card -->
+                                <div id="userActiveSessionCard" style="display: none; background: var(--bgcolor3); border: 2px solid var(--secondc); border-radius: 12px; padding: 18px; margin-bottom: 20px; color: #fff;">
+                                </div>
                                 <div class="dashboard" id="userdash">
                                     {{-- <div class="cvdec cvdec1"></div>
                                     <div class="cvdec cvdec2"></div>
@@ -161,17 +164,17 @@
                     </div>
                     <div class="computersdata">
                         <div class="datatcontainer">
-                            <div class="floor-zone-bar" style="display: flex; gap: 15px; margin-bottom: 15px; justify-content: center;">
-                                <button class="zone-btn active" id="btnZonePC" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 10px 22px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                                    💻 Lower Floor - PC Arena (Rs. 125/hr)
+                            <div class="floor-zone-bar" style="display: flex; gap: 15px; margin-bottom: 15px; justify-content: center; position: relative; z-index: 10;">
+                                <button class="zone-btn active" id="btnZoneGround" style="background: var(--secondc); color: var(--bgcolor); border: none; padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                                    🎮 Ground Floor - PS5 Console Arena (2 PS5s - Rs. 99/hr)
                                 </button>
-                                <button class="zone-btn" id="btnZonePS5" style="background: var(--bgcolor3); color: #fff; border: 1px solid var(--secondc); padding: 10px 22px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
-                                    🎮 Upper Floor - PS5 Lounge (Rs. 150/hr)
+                                <button class="zone-btn" id="btnZoneUpper" style="background: var(--bgcolor3); color: #fff; border: 1px solid var(--secondc); padding: 12px 24px; border-radius: 8px; font-weight: bold; cursor: pointer; transition: transform 0.2s;">
+                                    ✨ Upper Floor - Ghost of Yōtei VIP Lounge (1 PS5 + Cloud Lights - Rs. 120/hr)
                                 </button>
                             </div>
                             <div class="pc">
                                 <div class="con">
-                                    <div class="pcname" id="computername">PC - 01</div>
+                                    <div class="pcname" id="computername">🎮 Ground Floor PS5 #1</div>
                                     <div class="pcdetail">
                                         <div class="pcimg"></div>
                                         <div class="linecon">
@@ -185,7 +188,6 @@
                                     </div>
                                     <div class="dec"></div>
                                     <div class="pcselector">
-                                        <div class="bluredec"></div>
                                         <div class="pclist">
                                             <div class="dumy"></div>
                                             <div class="dumy"></div>

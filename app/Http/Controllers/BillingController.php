@@ -10,7 +10,7 @@ use App\Models\Invoice;
 use App\Models\InvoiceItem;
 use App\Models\Payment;
 use App\Models\GamingSession;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 
 class BillingController extends Controller
 {
@@ -68,6 +68,11 @@ class BillingController extends Controller
 
             $total = max(0, $subtotal - $discount + $tax);
 
+            // If session originated from an online reservation, it was prepaid online
+            $isPrepaid = !empty($session->reservation_id);
+            $paidAmount = $isPrepaid ? $total : 0;
+            $status = $isPrepaid ? 'PAID' : 'ISSUED';
+
             $invoice = Invoice::create([
                 'invoice_number' => $invNum,
                 'user_id' => $session->user_id,
@@ -77,10 +82,10 @@ class BillingController extends Controller
                 'discount' => $discount,
                 'tax' => $tax,
                 'total' => $total,
-                'paid_amount' => 0,
-                'status' => 'ISSUED',
+                'paid_amount' => $paidAmount,
+                'status' => $status,
                 'issued_at' => now(),
-                'notes' => 'Gaming Session #' . $session->id . ' on Station #' . $session->station_id
+                'notes' => 'Gaming Session #' . $session->id . ' on Station #' . $session->station_id . ($isPrepaid ? ' (Prepaid Online)' : '')
             ]);
 
             // Add line item with historical unit_price snapshot
@@ -200,7 +205,7 @@ class BillingController extends Controller
     {
         $invoices = Invoice::with(['user', 'gamingSession'])->select('invoices.*');
 
-        return Datatables::of($invoices)
+        return DataTables::of($invoices)
             ->addColumn('customer_name', function ($inv) {
                 if ($inv->user) {
                     return $inv->user->first_name . ' ' . $inv->user->last_name;

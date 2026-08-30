@@ -4,10 +4,11 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
+use Illuminate\Support\Facades\DB;
 use App\Models\Reservation;
 use App\Models\Package;
 use App\Models\Computer;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 
 class ReservationController extends Controller
 {
@@ -18,6 +19,21 @@ class ReservationController extends Controller
 
     public function store(Request $request)
     {
+        $validator = \Illuminate\Support\Facades\Validator::make($request->all(), [
+            'date' => 'required|date|date_format:Y-m-d',
+            'pc' => 'required|integer|exists:computers,cid',
+            'packid' => 'required|integer|exists:packages,package_id',
+            'start_time' => 'required|integer|min:0|max:23',
+            'time' => 'required|string|max:50',
+        ]);
+
+        if ($validator->fails()) {
+            return response()->json([
+                'status' => 'error',
+                'message' => $validator->errors()->first()
+            ], 422);
+        }
+
         $uid  = Auth::user()->id;
         $name = (Auth::user()->first_name) . " " . (Auth::user()->last_name);
         $date = $request->date;
@@ -44,52 +60,75 @@ class ReservationController extends Controller
             ], 422);
         }
 
-        // Check for conflicting reservations for this station & date
-        $existingReservations = Reservation::where('date', $date)
-            ->where('computer_id', $pcid)
-            ->get();
+        return DB::transaction(function () use ($uid, $name, $date, $pcid, $startTime, $package, $pkgTime, $request) {
+            // Check for conflicting reservations for this station & date under transaction lock
+            $existingReservations = Reservation::where('date', $date)
+                ->where('computer_id', $pcid)
+                ->lockForUpdate()
+                ->get();
 
-        foreach ($existingReservations as $res) {
-            $resPkg = Package::where('package_id', $res->package_id)->first();
-            $resDuration = $resPkg ? $resPkg->package_time : 1;
-            $resStart = (int) $res->start_time;
-            $resEnd = $resStart + $resDuration;
+            foreach ($existingReservations as $res) {
+                $resPkg = Package::where('package_id', $res->package_id)->first();
+                $resDuration = $resPkg ? $resPkg->package_time : 1;
+                $resStart = (int) $res->start_time;
+                $resEnd = $resStart + $resDuration;
 
-            $newEnd = $startTime + $pkgTime;
+                $newEnd = $startTime + $pkgTime;
 
-            // Check if time intervals overlap
-            if (max($resStart, $startTime) < min($resEnd, $newEnd)) {
-                return response()->json([
-                    'status' => 'error',
-                    'message' => 'Station PC/PS5 #' . $pcid . ' is ALREADY BOOKED for this time slot (' . $res->time . ')! Please select a different time slot or station.'
-                ], 422);
+                // Check if time intervals overlap
+                if (max($resStart, $startTime) < min($resEnd, $newEnd)) {
+                    return response()->json([
+                        'status' => 'error',
+                        'message' => 'Station PC/PS5 #' . $pcid . ' is ALREADY BOOKED for this time slot (' . $res->time . ')! Please select a different time slot or station.'
+                    ], 422);
+                }
             }
-        }
 
-        $reservation = new Reservation();
+            $reservation = new Reservation();
 
-        $reservation->user_id = $uid;
-        $reservation->user_name = $name;
-        $reservation->date = $date;
-        $reservation->time = $request->time;
-        $reservation->computer_id = $pcid;
-        $reservation->package_id = $request->packid;
-        $reservation->start_time = $startTime;
+            $reservation->user_id = $uid;
+            $reservation->user_name = $name;
+            $reservation->date = $date;
+            $reservation->time = $request->time;
+            $reservation->computer_id = $pcid;
+            $reservation->package_id = $request->packid;
+            $reservation->start_time = $startTime;
 
-        $reservation->save();
+            $reservation->save();
 
-        return response()->json(['status' => 'ok']);
+            return response()->json(['status' => 'ok']);
+        });
     }
 
     public function anydata()
     {
+        $reservations = Reservation::with(['user', 'package'])->select('reservations.*');
 
-        return Datatables::of(Reservation::query())->make(true);
+        return DataTables::of($reservations)
+            ->addColumn('customer_name', function ($res) {
+                if ($res->user) {
+                    $fullName = trim($res->user->first_name . ' ' . $res->user->last_name);
+                    $uName = $res->user->user_name ? (' (@' . $res->user->user_name . ')') : '';
+                    return '<strong>' . ($fullName ?: $res->user->user_name) . $uName . '</strong><br><span style="font-size:0.8rem; color:#aaa;">📱 ' . ($res->user->phone_number ?? 'N/A') . '<br>✉️ ' . $res->user->email . '</span>';
+                }
+                return '<strong>' . ($res->user_name ?: 'Online Customer') . '</strong>';
+            })
+            ->addColumn('station_name', function ($res) {
+                if ($res->computer_id == 3) {
+                    return '✨ Upper Floor VIP PS5 #3';
+                }
+                return '🎮 Ground Floor PS5 #' . $res->computer_id;
+            })
+            ->addColumn('package_name', function ($res) {
+                return $res->package ? $res->package->package_name : ('Package #' . $res->package_id);
+            })
+            ->rawColumns(['customer_name'])
+            ->make(true);
     }
     public function userdata()
     {
 
-        return Datatables::of(Reservation::query()->where("user_id", Auth::user()->id))->make(true);
+        return DataTables::of(Reservation::query()->where("user_id", Auth::user()->id))->make(true);
     }
 
     public function respkgdata(Request $request)

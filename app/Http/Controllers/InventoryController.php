@@ -11,7 +11,7 @@ use App\Models\InventoryProduct;
 use App\Models\StockAdjustment;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 
 class InventoryController extends Controller
 {
@@ -128,7 +128,7 @@ class InventoryController extends Controller
     {
         $products = InventoryProduct::with('category')->select('inventory_products.*');
 
-        return Datatables::of($products)
+        return DataTables::of($products)
             ->addColumn('category_name', function ($p) {
                 return $p->category ? $p->category->name : 'General';
             })

@@ -90,8 +90,9 @@
                             <div class="text">Daily Visitors</div>
                         </label>
                         <input type="radio" name="slidmenu" value="Messages" id="menu13">
-                        <label for="menu13">
+                        <label for="menu13" style="position: relative;">
                             <i class="fa-solid fa-envelope"></i>
+                            <span id="msgUnreadBadge" style="display: none; position: absolute; top: 6px; right: 12px; background: #ff6b6b; color: #fff; font-size: 0.7rem; font-weight: bold; padding: 2px 6px; border-radius: 10px; border: 1px solid var(--bgcolor);">0</span>
                             <div class="text">Visitor Messages</div>
                         </label>
                     </div>
@@ -429,11 +430,15 @@
                                 <div class="exp">Package Time (Hours)</div>
                                 <input type="text" id="packtime">
                                 <div class="error" id="packtimeerror"></div>
-                                <div class="exp">Package Price (Rs)</div>
+                                <div class="exp">Ground Floor Price - PS5 Arena (Rs)</div>
+                                <input type="text" id="packgroundprice" placeholder="e.g. 99 (Rs. 99/hr)">
+                                <div class="error" id="packgroundpriceerror"></div>
+                                <div class="exp">Upper Floor Price - Ghost of Yōtei VIP (Rs)</div>
+                                <input type="text" id="packupperprice" placeholder="e.g. 120 (Rs. 120/hr)">
+                                <div class="error" id="packupperpriceerror"></div>
+                                <div class="exp">Default/Base Package Price (Rs)</div>
                                 <input type="text" id="packprice">
                                 <div class="error" id="packpriceerror"></div>
-                                {{-- <div class="exp">Package Description</div>
-                                <input type="text"> --}}
                             </div>
                         </div>
                     </div>
@@ -595,14 +600,14 @@
                                         <input type="text" id="v_name" placeholder="e.g. John Doe">
                                     </div>
                                     <div class="v-form-group">
-                                        <label>Phone Number</label>
-                                        <input type="text" id="v_phone" placeholder="e.g. 9876543210">
+                                        <label>Phone Number (10 Digits)</label>
+                                        <input type="text" id="v_phone" maxlength="10" placeholder="e.g. 9876543210" oninput="this.value = this.value.replace(/[^0-9]/g, '').slice(0, 10)">
                                     </div>
                                     <div class="v-form-group">
                                         <label>Gaming Zone / Floor *</label>
                                         <select id="v_zone">
-                                            <option value="Upper Floor (PS5 Lounge)">🎮 Upper Floor - PS5 Gaming Lounge</option>
-                                            <option value="Lower Floor (PC Arena)">💻 Lower Floor - PC Gaming Arena</option>
+                                            <option value="Ground Floor (PS5 Standard)">🎮 Ground Floor - PS5 Console Arena (2 PS5s - Rs. 99/hr)</option>
+                                            <option value="Upper Floor (PS5 VIP Cloud Edition)">✨ Upper Floor - Special Edition VIP Lounge (1 PS5 + Cloud Lights - Rs. 120/hr)</option>
                                         </select>
                                     </div>
                                     <div class="v-form-group">
@@ -612,7 +617,7 @@
                                             <option value="2">2 Hours</option>
                                             <option value="3">3 Hours</option>
                                             <option value="4">4 Hours</option>
-                                            <option value="5">5+ Hours</option>
+                                            <option value="5">5 Hours</option>
                                         </select>
                                     </div>
                                     <div class="v-form-group">
@@ -638,6 +643,12 @@
                                         <label>Entry Date *</label>
                                         <input type="date" id="v_date">
                                     </div>
+                                    <div class="v-form-group">
+                                        <label>Total Calculated Amount</label>
+                                        <div style="background: var(--bgcolor3); border: 1px solid var(--secondc); padding: 10px 14px; border-radius: 8px; font-size: 1.2rem; font-weight: bold; color: #51cf66;" id="v_total_amount_box">
+                                            Rs. 120
+                                        </div>
+                                    </div>
                                 </div>
                                 <button class="save-visitor-btn" id="saveVisitorBtn"><i class="fa-solid fa-check"></i> Save Visitor Entry</button>
                                 <div id="v_form_msg" style="margin-top:10px;"></div>
@@ -654,6 +665,7 @@
                                         <th>Game Played</th>
                                         <th>Food Item</th>
                                         <th>Floor / Zone</th>
+                                        <th>Amount Paid</th>
                                         <th>Action</th>
                                     </tr>
                                 </thead>
@@ -686,6 +698,42 @@
                         </div>
                     </div>
                 </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- End Gaming Session & Auto-Log Visitor Modal -->
+    <div id="endSessionModal" style="display: none; position: fixed; inset: 0; background: rgba(0,0,0,0.75); z-index: 9999; justify-content: center; align-items: center;">
+        <div style="background: var(--bgcolor2); border: 1px solid var(--secondc); padding: 25px; border-radius: 12px; width: 90%; max-width: 440px; color: #fff;">
+            <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px;">
+                <h3 style="margin: 0; color: var(--secondc);"><i class="fa-solid fa-flag-checkered"></i> Complete & End Gaming Session</h3>
+                <button id="closeEndSessionModal" style="background: none; border: none; color: #fff; font-size: 1.2rem; cursor: pointer;"><i class="fa-solid fa-xmark"></i></button>
+            </div>
+            <input type="hidden" id="end_session_id">
+            <div style="display: flex; flex-direction: column; gap: 15px;">
+                <div style="font-size: 0.95rem; background: var(--bgcolor3); padding: 12px; border-radius: 8px;">
+                    <div><strong>Customer:</strong> <span id="end_sess_customer">--</span></div>
+                    <div><strong>Station:</strong> <span id="end_sess_station">--</span></div>
+                    <div><strong>Duration Played:</strong> <span id="end_sess_duration">--</span></div>
+                </div>
+                <div>
+                    <label style="display: block; margin-bottom: 5px; font-weight: bold;">Food / Snack Item Purchased during Session:</label>
+                    <select id="end_sess_food" style="width: 100%; padding: 8px 12px; background: var(--bgcolor3); border: 1px solid var(--secondc); color: #fff; border-radius: 6px;">
+                        <option value="None">None</option>
+                        <option value="Gourmet Burger & Soft Drink">🍔 Gourmet Burger & Soft Drink</option>
+                        <option value="Pizza Slice & Fries">🍕 Pizza Slice & Fries</option>
+                        <option value="Energy Drink (Red Bull)">⚡ Energy Drink (Red Bull)</option>
+                        <option value="Energy Drink (Monster)">⚡ Energy Drink (Monster)</option>
+                        <option value="Snacks & Chips">🍿 Snacks & Chips</option>
+                        <option value="Cold Coffee">☕ Cold Coffee</option>
+                        <option value="Combo Meal">🍱 Combo Meal</option>
+                    </select>
+                </div>
+                <div style="font-size: 0.85rem; color: #51cf66; background: rgba(81, 207, 102, 0.1); padding: 8px; border-radius: 6px;">
+                    <i class="fa-solid fa-circle-check"></i> Ending session will automatically log this entry into the Daily Visitor Register and generate an invoice.
+                </div>
+                <button id="btnConfirmEndSession" style="background: #ff6b6b; color: #fff; border: none; padding: 10px; border-radius: 6px; font-weight: bold; cursor: pointer; margin-top: 5px;">Complete & Save Entry</button>
+                <div id="end_sess_msg" style="font-size: 0.9rem; text-align: center;"></div>
             </div>
         </div>
     </div>

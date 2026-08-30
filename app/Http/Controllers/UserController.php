@@ -4,7 +4,7 @@ namespace App\Http\Controllers;
 
 use Illuminate\Http\Request;
 use Illuminate\Support\Facades\Auth;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 use App\Models\Reservation;
 use App\Models\User;
 use Validator;
@@ -93,6 +93,7 @@ class UserController extends Controller
         $uname = $request->username;
         $password = $request->password;
         if (Auth::attempt(['user_name' => $uname, 'password' => $password])) {
+            $request->session()->regenerate();
             if(Auth::user()->isadmin){
                 return redirect('/admin');
             }else{
@@ -132,7 +133,7 @@ class UserController extends Controller
      }
      public function anydata(){
 
-        return Datatables::of(User::query())->make(true);
+        return DataTables::of(User::query())->make(true);
 
     }
 }

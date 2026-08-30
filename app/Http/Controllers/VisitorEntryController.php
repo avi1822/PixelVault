@@ -17,23 +17,32 @@ class VisitorEntryController extends Controller
     public function store(Request $request) {
         $validator = Validator::make($request->all(), [
             'visitor_name' => 'required',
+            'phone_number' => 'nullable|regex:/^[6-9]\d{9}$/',
             'hours_played' => 'required|numeric|min:1',
             'game_played'  => 'required',
             'zone_location'=> 'required',
             'entry_date'   => 'required|date'
+        ], [
+            'phone_number.regex' => 'Please enter a valid 10-digit mobile number starting with 6, 7, 8, or 9.'
         ]);
 
         if ($validator->fails()) {
-            return response()->json(['success' => false, 'message' => $validator->errors()]);
+            return response()->json(['success' => false, 'message' => $validator->errors()->first()]);
         }
+
+        $hours = (int) $request->hours_played;
+        $zone = $request->zone_location;
+        $rate = (str_contains($zone, 'Upper Floor')) ? 120 : 99;
+        $totalAmount = $hours * $rate;
 
         $entry = VisitorEntry::create([
             'visitor_name' => $request->visitor_name,
             'phone_number' => $request->phone_number ?? '',
-            'hours_played' => (int) $request->hours_played,
+            'hours_played' => $hours,
             'game_played'  => $request->game_played,
             'food_item'    => $request->food_item ?? 'None',
-            'zone_location'=> $request->zone_location,
+            'zone_location'=> $zone,
+            'total_amount' => $totalAmount,
             'entry_date'   => $request->entry_date,
         ]);
 
@@ -57,7 +66,17 @@ class VisitorEntryController extends Controller
             $query->where('zone_location', $request->filter_zone);
         }
 
-        return DataTables::of($query->latest())->make(true);
+        return DataTables::of($query->latest())
+            ->editColumn('visitor_name', function ($r) {
+                return e($r->visitor_name);
+            })
+            ->editColumn('game_played', function ($r) {
+                return e($r->game_played);
+            })
+            ->editColumn('food_item', function ($r) {
+                return e($r->food_item);
+            })
+            ->make(true);
     }
 
     public function analytics(Request $request) {

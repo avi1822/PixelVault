@@ -48,5 +48,25 @@ class RouteServiceProvider extends ServiceProvider
         RateLimiter::for('api', function (Request $request) {
             return Limit::perMinute(60)->by($request->user()?->id ?: $request->ip());
         });
+
+        // Login rate limiter: max 5 attempts per minute keyed by username + IP
+        RateLimiter::for('login', function (Request $request) {
+            return Limit::perMinute(5)->by(strtolower($request->input('username')) . '|' . $request->ip());
+        });
+
+        // Registration rate limiter: max 3 registrations per hour per IP
+        RateLimiter::for('registration', function (Request $request) {
+            return Limit::perMinutes(60, 3)->by($request->ip());
+        });
+
+        // Contact message rate limiter: max 3 messages per 15 minutes per IP
+        RateLimiter::for('contact', function (Request $request) {
+            return Limit::perMinutes(15, 3)->by($request->ip());
+        });
+
+        // Reservation rate limiter: max 5 bookings per 10 minutes per IP/User
+        RateLimiter::for('reservation', function (Request $request) {
+            return Limit::perMinutes(10, 5)->by($request->user()?->id ?: $request->ip());
+        });
     }
 }

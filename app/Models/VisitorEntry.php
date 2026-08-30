@@ -16,6 +16,7 @@ class VisitorEntry extends Model
         'game_played',
         'food_item',
         'zone_location',
+        'total_amount',
         'entry_date'
     ];
 }

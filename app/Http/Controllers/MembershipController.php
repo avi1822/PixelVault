@@ -10,7 +10,7 @@ use App\Models\MembershipPlan;
 use App\Models\Membership;
 use App\Models\Invoice;
 use App\Models\InvoiceItem;
-use Yajra\Datatables\Datatables;
+use Yajra\DataTables\DataTables;
 
 class MembershipController extends Controller
 {
@@ -157,7 +157,7 @@ class MembershipController extends Controller
 
         $memberships = Membership::with(['user', 'plan'])->select('memberships.*');
 
-        return Datatables::of($memberships)
+        return DataTables::of($memberships)
             ->addColumn('customer_name', function ($mem) {
                 return $mem->user ? ($mem->user->first_name . ' ' . $mem->user->last_name) : 'N/A';
             })

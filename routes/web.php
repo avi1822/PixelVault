@@ -40,28 +40,28 @@ Route::get('/admin', function () {
     return view('adminpanel');
 })->middleware(['auth',"isAdmin"]);
 
-Route::post('user/update', [UserController::class, 'update']);
-Route::post('user/updatep', [UserController::class, 'updatep']);
-Route::get('user/viewone', [UserController::class, 'viewOne']);
+Route::post('user/update', [UserController::class, 'update'])->middleware('auth');
+Route::post('user/updatep', [UserController::class, 'updatep'])->middleware('auth');
+Route::get('user/viewone', [UserController::class, 'viewOne'])->middleware('auth');
 
-Route::post('registration/store', [UserController::class, 'store']);
-Route::post('registration/dologin', [UserController::class, 'dologin']);
+Route::post('registration/store', [UserController::class, 'store'])->middleware('throttle:registration');
+Route::post('registration/dologin', [UserController::class, 'dologin'])->middleware('throttle:login');
 Route::get('registration/anydata', [UserController::class, 'anydata'])->middleware(['auth',"isAdmin"]);
 
-Route::post('reservation/store', [ReservationController::class, 'store']);
-Route::get('reservation/anydata', [ReservationController::class, 'anydata']);
-Route::get('reservation/userdata', [ReservationController::class, 'userdata']);
+Route::post('reservation/store', [ReservationController::class, 'store'])->middleware(['auth', 'throttle:reservation']);
+Route::get('reservation/anydata', [ReservationController::class, 'anydata'])->middleware(['auth', 'isAdmin']);
+Route::get('reservation/userdata', [ReservationController::class, 'userdata'])->middleware('auth');
 Route::get('reservation/respkgdata', [ReservationController::class, 'respkgdata']);
 Route::get('reservation/viewpopuler', [ReservationController::class, 'viewPopuler']);
 Route::get('reservation/geteventdetails', [ReservationController::class, 'getEventDetails']);
 
-Route::post('game/store', [GameController::class, 'store']);
-Route::post('game/update', [GameController::class, 'update']);
-Route::post('game/delete', [GameController::class, 'delete']);
+Route::post('game/store', [GameController::class, 'store'])->middleware(['auth', 'isAdmin']);
+Route::post('game/update', [GameController::class, 'update'])->middleware(['auth', 'isAdmin']);
+Route::post('game/delete', [GameController::class, 'delete'])->middleware(['auth', 'isAdmin']);
 Route::get('game/view', [GameController::class, 'view']);
 Route::get('game/viewone', [GameController::class, 'viewone']);
 Route::get('game/viewhimg', [GameController::class, 'viewhimg']);
-Route::get('game/anydata', [GameController::class, 'anydata']);
+Route::get('game/anydata', [GameController::class, 'anydata'])->middleware(['auth', 'isAdmin']);
 Route::get('game/partofdata', [GameController::class, 'partofdata']);
 Route::get('game/getlatest', [GameController::class, 'getLatest']);
 
@@ -76,9 +76,9 @@ Route::get('computer/delete', [ComputerController::class, 'delete'])->middleware
 
 use App\Http\Controllers\VisitorEntryController;
 
-Route::post('package/store', [PackageController::class, 'store']);
-Route::post('package/update', [PackageController::class, 'update']);
-Route::post('package/delete', [PackageController::class, 'delete']);
+Route::post('package/store', [PackageController::class, 'store'])->middleware(['auth', 'isAdmin']);
+Route::post('package/update', [PackageController::class, 'update'])->middleware(['auth', 'isAdmin']);
+Route::post('package/delete', [PackageController::class, 'delete'])->middleware(['auth', 'isAdmin']);
 Route::get('package/viewall', [PackageController::class, 'viewall']);
 Route::get('package/viewone', [PackageController::class, 'viewone']);
 
@@ -93,6 +93,7 @@ Route::post('session/start-reservation', [GamingSessionController::class, 'start
 Route::post('session/start-walkin', [GamingSessionController::class, 'startWalkIn'])->middleware(['auth', 'isAdmin']);
 Route::post('session/end', [GamingSessionController::class, 'endSession'])->middleware(['auth', 'isAdmin']);
 Route::get('session/active', [GamingSessionController::class, 'viewActive'])->middleware(['auth', 'isAdmin']);
+Route::get('session/my-active', [GamingSessionController::class, 'myActiveSession'])->middleware('auth');
 Route::get('session/anydata', [GamingSessionController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
 use App\Http\Controllers\BillingController;
 
@@ -118,10 +119,11 @@ Route::get('analytics/dashboard', [AnalyticsController::class, 'dashboard'])->mi
 
 use App\Http\Controllers\ContactMessageController;
 
-Route::post('contact/store', [ContactMessageController::class, 'store']);
+Route::post('contact/store', [ContactMessageController::class, 'store'])->middleware('throttle:contact');
 Route::get('contact/anydata', [ContactMessageController::class, 'anyData'])->middleware(['auth', 'isAdmin']);
 Route::post('contact/markread', [ContactMessageController::class, 'markRead'])->middleware(['auth', 'isAdmin']);
 Route::post('contact/delete', [ContactMessageController::class, 'delete'])->middleware(['auth', 'isAdmin']);
+Route::get('contact/unreadcount', [ContactMessageController::class, 'unreadCount'])->middleware(['auth', 'isAdmin']);
 
 Route::get('/logout', [LogoutController::class, 'perform'])->middleware('auth')->name('logout');
 

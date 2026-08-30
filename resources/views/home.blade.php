@@ -12,6 +12,7 @@
     <script src="https://ajax.googleapis.com/ajax/libs/jquery/3.6.0/jquery.min.js"></script>
     <script src="{{url('assets/js/jqFuwatto.umd.js')}}" defer></script>
     <script src="{{url('assets/js/home_page.js')}}"></script>
+    @vite(['resources/css/app.css', 'resources/js/app.js'])
 </head>
 
 <body>
@@ -71,13 +72,21 @@
                                 Welcome to PixelVault, the premier PS5 Gaming Lounge experience! Immerse yourself in 4K HDR Next-Gen console setups, ultra-low latency fiber networking, ergonomic pro lounges, and top AAA multiplayer games.
                             </div>
                             <div class="buttons">
-                                <div class="facebook"><i class="fa-brands fa-facebook-f"></i></div>
+                                <div class="whatsapp">
+                                    <a href="https://wa.me/919321495527?text=Hi%20PixelVault%20Team,%20I%20would%20like%20to%20inquire%20about%20booking%20a%20PS5%20session!" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; width: 100%; height: 100%; display: grid; place-items: center;">
+                                        <i class="fa-brands fa-whatsapp" style="font-size: 1.2rem; color: #25D366;"></i>
+                                    </a>
+                                </div>
                                 <div class="instagram">
                                     <a href="https://www.instagram.com/pixel_vault1011" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; width: 100%; height: 100%; display: grid; place-items: center;">
                                         <i class="fa-brands fa-instagram"></i>
                                     </a>
                                 </div>
-                                <div class="youtube"><i class="fa-brands fa-youtube"></i></div>
+                                <div class="youtube">
+                                    <a href="https://www.youtube.com/@pixelvault-1011" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: none; width: 100%; height: 100%; display: grid; place-items: center;">
+                                        <i class="fa-brands fa-youtube"></i>
+                                    </a>
+                                </div>
                                 @auth
                                     <div class="contact"><a href="{{ url('/user') }}">Book Session</a></div>
                                 @else
@@ -86,7 +95,8 @@
                             </div>
                         </div>
                     </div>
-                    <div class="subcontainer2">
+                    <div class="subcontainer2" style="position: relative;">
+                        <div id="three-hero-container" style="position: absolute; inset: 0; width: 100%; height: 100%; pointer-events: none; z-index: 2;"></div>
                         <div class="target" id="target">
                             <div class="circle"></div>
                         </div>
@@ -296,11 +306,15 @@
             </div>
         </section>
         <section class="contacts" id="contacts">
-            <div class="caption">Contact</div>
+            <div class="caption">Contact & Location</div>
             <div class="conoptions">
                 <div class="concard">
                     <div class="address conop"><i class="fa-solid fa-location-dot"></i></div>
-                    <div class="text"><a href="https://maps.app.goo.gl/nVbSY5Pe4ovj8JNWA" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline;">View Shop on Google Maps</a></div>
+                    <div class="text">
+                        <a href="https://maps.app.goo.gl/kbGjcjfDyiUhRude8" target="_blank" rel="noopener noreferrer" style="color: inherit; text-decoration: underline; font-weight: bold;">
+                            View Shop on Google Maps
+                        </a>
+                    </div>
                 </div>
                 <div class="concard">
                     <div class="num conop"><i class="fa-solid fa-phone"></i></div>
@@ -324,9 +338,9 @@
                         <!-- <i class="material-icons">send</i> -->
                     </button>
                 </div>
-                <div class="map" style="position: relative;">
+                <div class="map" style="position: relative; border-radius: 12px; overflow: hidden; border: 2px solid var(--secondc);">
                     <iframe class="position-relative rounded w-100 h-100"
-                        src="https://maps.google.com/maps?q=18.990737,73.124983&hl=en&z=15&output=embed"
+                        src="https://maps.google.com/maps?q=18.990737,73.124983&hl=en&z=17&output=embed"
                         frameborder="0" style="width:100%; height:100%; border:0;" allowfullscreen=""
                         aria-hidden="false" tabindex="0"></iframe>
                 </div>
@@ -343,14 +357,15 @@
             <div class="row">
                 <div class="details">
                     <div class="title">
-                        Address
+                        Shop Location
                     </div>
-                    C/5/1, kandy road,<br>
-                    Gampaha.
+                    <strong>PixelVault Gaming Lounge</strong><br>
+                    Sector 20, Vichumbe, New Panvel,<br>
+                    Navi Mumbai, Maharashtra 410206
                 </div>
                 <div class="details">
                     <div class="title">
-                        About Us
+                        Quick Links
                     </div>
                     <a href="#">Home</a><br>
                     <a href="#services">Services</a><br>
@@ -360,18 +375,18 @@
                 </div>
                 <div class="details">
                     <div class="title">
-                        Services
+                        Features
                     </div>
-                    Play games <br>
-                    Online payments <br>
-                    Foods
+                    PS5 Pro Gaming<br>
+                    4K Ultra-HD HDR<br>
+                    VIP Lounges & Snacks
                 </div>
                 <div class="details">
                     <div class="title">
-                        Services
+                        Contact Info
                     </div>
-                    C/5/1, kandy road,<br>
-                    Gampaha.
+                    📱 +91 9321495527<br>
+                    ✉️ pixelvault1011@gmail.com
                 </div>
                 <div class="details">
                     <div class="title">
