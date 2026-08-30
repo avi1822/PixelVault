@@ -21,18 +21,20 @@ RUN apk add --no-cache \
     nginx \
     supervisor \
     curl \
+    pkgconfig \
     libpng-dev \
     libjpeg-turbo-dev \
     freetype-dev \
     libzip-dev \
     postgresql-dev \
+    sqlite-dev \
     oniguruma-dev \
     zip \
     unzip \
     bash
 
 RUN docker-php-ext-configure gd --with-freetype --with-jpeg \
-    && docker-php-ext-install pdo pdo_pgsql pdo_sqlite gd zip mbstring bcmath opcache
+    && docker-php-ext-install -j$(nproc) pdo pdo_pgsql pdo_sqlite gd zip mbstring bcmath opcache
 
 # Install Composer
 COPY --from=composer:latest /usr/bin/composer /usr/bin/composer
