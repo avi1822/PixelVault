@@ -6,6 +6,11 @@ PORT="${PORT:-8080}"
 sed -i "s/listen 8080/listen ${PORT}/g" /etc/nginx/nginx.conf
 sed -i "s/listen \[::\]:8080/listen \[::\]:${PORT}/g" /etc/nginx/nginx.conf
 
+# Ensure DB_CONNECTION defaults to pgsql in Docker production unless specified
+if [ -n "$DATABASE_URL" ] || [ -n "$DB_HOST" ]; then
+    export DB_CONNECTION="${DB_CONNECTION:-pgsql}"
+fi
+
 # Parse DATABASE_URL if provided by Render PostgreSQL
 if [ -n "$DATABASE_URL" ]; then
     export DB_CONNECTION=pgsql
@@ -27,12 +32,16 @@ fi
 # Run storage symlink
 php artisan storage:link || true
 
-# Run cache & optimizations
+# Clear stale caches then rebuild production caches
+php artisan config:clear || true
+php artisan route:clear || true
+php artisan view:clear || true
+
 php artisan config:cache || true
 php artisan route:cache || true
 php artisan view:cache || true
 
-# Safely run migrations if DB is accessible
+# Safely run migrations if DB connection is active
 if [ -n "$DB_HOST" ]; then
     php artisan migrate --force || true
 fi
