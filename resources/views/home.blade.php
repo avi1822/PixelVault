@@ -31,23 +31,26 @@
         <div class="upper">
             <nav>
                 <div class="logo"><span>P</span>IXELVAULT</div>
-                <div class="navlist">
+                <button class="mobile-nav-toggle" id="mobileNavToggle" aria-label="Toggle navigation menu">
+                    <i class="fa-solid fa-bars"></i>
+                </button>
+                <div class="navlist" id="navlistMenu">
                     <input type="radio" name="navLinks" value="home" id="navhome" checked><label
-                        onclick="$('#navhome').prop('checked', true)" for="navhome"><a href="#">Home</a></label>
+                        onclick="$('#navhome').prop('checked', true); closeMobileMenu();" for="navhome"><a href="#">Home</a></label>
                     <input type="radio" name="navLinks" value="stations" id="navstations"><label
-                        onclick="$('#navstations').prop('checked', true)" for="navstations"><a
+                        onclick="$('#navstations').prop('checked', true); closeMobileMenu();" for="navstations"><a
                             href="#stations">Gaming Stations</a></label>
                     <input type="radio" name="navLinks" value="services" id="navservices"><label
-                        onclick="$('#navservices').prop('checked', true)" for="navservices"><a
+                        onclick="$('#navservices').prop('checked', true); closeMobileMenu();" for="navservices"><a
                             href="#services">Services</a></label>
                     <input type="radio" name="navLinks" value="packages" id="navpackages"><label
-                        onclick="$('#navpackages').prop('checked', true)" for="navpackages"><a
+                        onclick="$('#navpackages').prop('checked', true); closeMobileMenu();" for="navpackages"><a
                             href="#packages">Packages</a></label>
                     <input type="radio" name="navLinks" value="about" id="navabout"><label
-                        onclick="$('#navabout').prop('checked', true)" for="navabout"><a
+                        onclick="$('#navabout').prop('checked', true); closeMobileMenu();" for="navabout"><a
                             href="#aboutus">About</a></label>
                     <input type="radio" name="navLinks" value="contacts" id="navcontacts"><label
-                        onclick="$('#navcontacts').prop('checked', true)" for="navcontacts"><a
+                        onclick="$('#navcontacts').prop('checked', true); closeMobileMenu();" for="navcontacts"><a
                             href="#contacts">Contact</a></label>
                 </div>
                 <div class="rightnav">

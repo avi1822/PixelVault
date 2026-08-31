@@ -205,11 +205,25 @@ $(document).ready(function () {
             error: function (xhr) {
                 $("#btnSubmitContact").prop("disabled", false).text("Send Message");
                 let msg = "Failed to send message. Please try again.";
-                if (xhr.responseJSON && xhr.responseJSON.message) {
-                    msg = xhr.responseJSON.message;
-                }
                 $("#contact_msg_response").html(`<span style="color:#ff6b6b;">${msg}</span>`);
             }
         });
+    });
+});
+
+function closeMobileMenu() {
+    $("#navlistMenu").removeClass("active");
+}
+
+$(document).ready(function () {
+    $("#mobileNavToggle").on("click", function (e) {
+        e.stopPropagation();
+        $("#navlistMenu").toggleClass("active");
+    });
+
+    $(document).on("click", function (e) {
+        if (!$(e.target).closest("#navlistMenu, #mobileNavToggle").length) {
+            closeMobileMenu();
+        }
     });
 });

@@ -1168,3 +1168,194 @@ button{
     color: rgba(255, 255, 255, 0.7);
     line-height: 1.5;
 }
+
+/* ==========================================
+   RESPONSIVE MEDIA QUERIES FOR MOBILE & TABLET
+   ========================================== */
+
+.mobile-nav-toggle {
+    display: none;
+    background: transparent;
+    border: none;
+    color: var(--secondc);
+    font-size: 1.6rem;
+    cursor: pointer;
+    padding: 8px 12px;
+}
+
+@media screen and (max-width: 1024px) {
+    .homearea {
+        width: 100%;
+        height: auto;
+        min-height: 100vh;
+    }
+    .homearea nav .logo {
+        padding-inline: 20px;
+        font-size: 1.3rem;
+    }
+    .homearea nav .logo span {
+        font-size: 2rem;
+    }
+    .homearea .land {
+        height: auto;
+        min-height: calc(100vh - 70px);
+        padding-bottom: 50px;
+    }
+    .homearea .land .wall .container {
+        position: relative;
+        flex-direction: column;
+        height: auto;
+        padding-top: 40px;
+    }
+    .homearea .land .wall .subcontainer {
+        width: 90%;
+        padding: 20px 10px;
+        text-align: center;
+    }
+    .homearea .land .wall .subcontainer2 {
+        width: 90%;
+        height: 300px;
+        margin-top: 30px;
+    }
+    .homearea .land .wall .subcontainer .buttons {
+        justify-content: center;
+        flex-wrap: wrap;
+    }
+}
+
+@media screen and (max-width: 768px) {
+    body {
+        overflow-x: hidden;
+    }
+    .homearea .upper {
+        height: 70px;
+    }
+    .mobile-nav-toggle {
+        display: block;
+        margin-left: auto;
+    }
+    .homearea nav .rightnav {
+        margin-left: 10px;
+        width: auto;
+    }
+    .homearea nav .rightnav button {
+        width: auto;
+        padding-inline: 14px;
+        height: 32px;
+    }
+    .homearea nav .navlist {
+        display: none;
+        position: absolute;
+        top: 70px;
+        left: 0;
+        width: 100%;
+        background-color: var(--bgcolor2);
+        flex-direction: column;
+        height: auto;
+        padding-block: 20px;
+        border-bottom: 2px solid var(--secondc);
+        box-shadow: 0 10px 25px rgba(0,0,0,0.8);
+        z-index: 999;
+    }
+    .homearea nav .navlist.active {
+        display: flex;
+    }
+    .homearea nav .navlist label {
+        width: 100%;
+        padding-block: 12px;
+        margin: 0;
+        border-radius: 0;
+    }
+    .homearea nav .navlist input[name="navLinks"]:checked + label {
+        border-bottom: none;
+        background-color: var(--bgcolor3);
+        color: var(--secondc);
+    }
+    .homearea .land .wall .subcontainer {
+        width: 95%;
+        padding: 10px;
+    }
+    .homearea .land .wall .subcontainer .text .caption {
+        font-size: 2.2rem;
+        line-height: 1.2;
+    }
+    .homearea .land .wall .subcontainer .text .para {
+        font-size: 0.95rem;
+        width: 100%;
+    }
+    .homearea .dashboard .dashcontainer {
+        grid-template-columns: repeat(2, 1fr);
+        width: 92%;
+        gap: 15px;
+    }
+    .homearea .service .servicelist {
+        flex-direction: column;
+        align-items: center;
+        gap: 25px;
+    }
+    .homearea .service .servicelist .card {
+        width: 90%;
+        max-width: 400px;
+        height: auto;
+    }
+    .homearea .packages .packageslist {
+        flex-direction: column;
+        align-items: center;
+        gap: 30px;
+    }
+    .homearea .packages .packageslist .packcard {
+        width: 90%;
+        max-width: 380px;
+    }
+    .homearea .aboutus .about-grid {
+        grid-template-columns: 1fr;
+        width: 92%;
+    }
+    .homearea .contacts .condetails {
+        flex-direction: column;
+        gap: 30px;
+        width: 95%;
+    }
+    .homearea .contacts .condetails .conform,
+    .homearea .contacts .condetails .map {
+        width: 100%;
+        height: auto;
+        min-height: 320px;
+    }
+    .homearea .contacts .conoptions {
+        flex-direction: column;
+        width: 92%;
+        gap: 15px;
+    }
+    .homearea .contacts .conoptions .concard {
+        width: 100%;
+    }
+    .footer .row {
+        flex-direction: column;
+        gap: 25px;
+        text-align: center;
+    }
+}
+
+@media screen and (max-width: 480px) {
+    .homearea nav .logo {
+        font-size: 1.1rem;
+        padding-inline: 10px;
+    }
+    .homearea nav .logo span {
+        font-size: 1.6rem;
+    }
+    .homearea .land .wall .subcontainer .text .caption {
+        font-size: 1.75rem;
+    }
+    .homearea .dashboard .dashcontainer {
+        grid-template-columns: 1fr;
+    }
+    .homearea .contacts .condetails .conform .row {
+        flex-direction: column;
+        gap: 15px;
+    }
+    .homearea .contacts .condetails .conform input[type="text"] {
+        width: 100%;
+    }
+}
